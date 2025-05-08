@@ -64,14 +64,14 @@ class Main : ApplicationAdapter() {
         val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
 
 
-        // Text Button
-        val button2: Button = TextButton("Text Button", mySkin, "small")
-        button2.setSize((col_width * 4).toFloat(), row_height.toFloat())
-        button2.setPosition(
+        // Text Button 1
+        val button1: Button = TextButton("Text Button", mySkin, "small")
+        button1.setSize((col_width).toFloat(), row_height.toFloat())
+        button1.setPosition(
             (col_width * 7).toFloat(),
             (Gdx.graphics.height - row_height * 3).toFloat()
         )
-        button2.addListener(object : InputListener() {
+        button1.addListener(object : InputListener() {
             override fun touchUp(
                 event: InputEvent,
                 x: Float,
@@ -79,7 +79,7 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                outputLabel!!.setText("Press a Button")
+                outputLabel!!.setText("Press a Button 1")
             }
 
             override fun touchDown(
@@ -89,16 +89,115 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ): Boolean {
-                outputLabel!!.setText("Pressed Text Button")
+                outputLabel!!.setText("Pressed Text Button 1")
+                return true
+            }
+        })
+        stage!!.addActor(button1)
+
+
+        // Text Button 2
+        val button2: Button = TextButton("Text Button", mySkin, "small")
+        button2.setSize((col_width).toFloat(), row_height.toFloat())
+        button2.setPosition(
+            (col_width * 7).toFloat(),
+            (Gdx.graphics.height - row_height * 5).toFloat()
+        )
+        button2.addListener(object : InputListener() {
+            override fun touchUp(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                outputLabel!!.setText("Press a Button 2")
+            }
+
+            override fun touchDown(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                outputLabel!!.setText("Pressed Text Button 2")
                 return true
             }
         })
         stage!!.addActor(button2)
 
+
+
+        // Text Button 3
+        val button3: Button = TextButton("Text Button", mySkin, "small")
+        button3.setSize((col_width).toFloat(), row_height.toFloat())
+        button3.setPosition(
+            (col_width * 9).toFloat(),
+            (Gdx.graphics.height - row_height * 3).toFloat()
+        )
+        button3.addListener(object : InputListener() {
+            override fun touchUp(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                outputLabel!!.setText("Press a Button 3")
+            }
+
+            override fun touchDown(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                outputLabel!!.setText("Pressed Text Button 3")
+                return true
+            }
+        })
+        stage!!.addActor(button3)
+
+
+        // Text Button 4
+        val button4: Button = TextButton("Text Button", mySkin, "small")
+        button4.setSize((col_width).toFloat(), row_height.toFloat())
+        button4.setPosition(
+            (col_width * 9).toFloat(),
+            (Gdx.graphics.height - row_height * 5).toFloat()
+        )
+        button4.addListener(object : InputListener() {
+            override fun touchUp(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                outputLabel!!.setText("Press a Button 4")
+            }
+
+            override fun touchDown(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                outputLabel!!.setText("Pressed Text Button 4")
+                return true
+            }
+        })
+        stage!!.addActor(button4)
+
+
+
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
         outputLabel!!.setPosition(0f, row_height.toFloat())
-        outputLabel!!.setAlignment(Align.center)
+        outputLabel!!.setAlignment(Align.topLeft)
         stage!!.addActor(outputLabel)
         // create scene
 
