@@ -21,6 +21,19 @@ import net.mgsx.gltf.scene3d.scene.SceneManager
 import net.mgsx.gltf.scene3d.scene.SceneSkybox
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
 
+
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.InputListener
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Button
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
@@ -38,7 +51,55 @@ class Main : ApplicationAdapter() {
     private var skybox: SceneSkybox? = null
     private var light: DirectionalLightEx? = null
 
+    private var stage: Stage? = null
+    private var outputLabel: Label? = null
+
     override fun create() {
+        stage = Stage(ScreenViewport())
+        Gdx.input.inputProcessor = stage
+
+        val row_height = Gdx.graphics.width / 12
+        val col_width = Gdx.graphics.width / 12
+
+        val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
+
+
+        // Text Button
+        val button2: Button = TextButton("Text Button", mySkin, "small")
+        button2.setSize((col_width * 4).toFloat(), row_height.toFloat())
+        button2.setPosition(
+            (col_width * 7).toFloat(),
+            (Gdx.graphics.height - row_height * 3).toFloat()
+        )
+        button2.addListener(object : InputListener() {
+            override fun touchUp(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                outputLabel!!.setText("Press a Button")
+            }
+
+            override fun touchDown(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                outputLabel!!.setText("Pressed Text Button")
+                return true
+            }
+        })
+        stage!!.addActor(button2)
+
+        outputLabel = Label("Press a Button", mySkin, "black")
+        outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
+        outputLabel!!.setPosition(0f, row_height.toFloat())
+        outputLabel!!.setAlignment(Align.center)
+        stage!!.addActor(outputLabel)
         // create scene
 
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/BoomBox/glTF/BoomBox.gltf"))
@@ -111,6 +172,13 @@ class Main : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
         sceneManager!!.update(deltaTime)
         sceneManager!!.render()
+
+
+
+//        Gdx.gl.glClearColor(1f, 1f, 1f, 1f)
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        stage!!.act()
+        stage!!.draw()
     }
 
     override fun dispose() {
