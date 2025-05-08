@@ -79,11 +79,9 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-//                camera!!.rotateAround(camera!!.position, Vector3.Y, 5f)
-//                camera!!.update()
-                camera!!.rotate(Vector3.Y, 5f) // 5f — угол поворота
+                camera!!.direction.rotate(5f,0f,1f, 0f)
                 camera!!.update() // Обязательно обновите матрицу
-                outputLabel!!.setText("Press a Button 1 ${camera!!.position}")
+                outputLabel!!.setText("Press a Button 1")
             }
 
             override fun touchDown(
@@ -115,9 +113,10 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
+//                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
+                camera!!.direction.rotate(-5f,0f,1f, 0f)
                 camera!!.update()
-                outputLabel!!.setText("Press a Button 2 ${camera!!.position}")
+                outputLabel!!.setText("Press a Button 2")
             }
 
             override fun touchDown(
@@ -154,7 +153,7 @@ class Main : ApplicationAdapter() {
                 val distance = 0.04f
                 camera!!.position.add(direction.scl(distance))
                 camera!!.update()
-                outputLabel!!.setText("Press a Button 3 ${camera!!.position}")
+                outputLabel!!.setText("Press a Button 3")
             }
 
             override fun touchDown(
@@ -190,7 +189,7 @@ class Main : ApplicationAdapter() {
                 val distance = -0.04f
                 camera!!.position.add(direction.scl(distance))
                 camera!!.update()
-                outputLabel!!.setText("Press a Button 4 ${camera!!.position}")
+                outputLabel!!.setText("Press a Button 4")
             }
 
             override fun touchDown(
@@ -279,7 +278,6 @@ class Main : ApplicationAdapter() {
 
 //        camera!!.rotateAround(camera!!.position, Vector3.Y, 90f)
         camera!!.up.set(Vector3.Y)
-        camera!!.lookAt(Vector3.Zero)
         camera!!.update()
 
 
