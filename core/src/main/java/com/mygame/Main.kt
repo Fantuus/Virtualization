@@ -2,6 +2,7 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
@@ -23,6 +24,8 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder
 
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController
+import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -54,7 +57,13 @@ class Main : ApplicationAdapter() {
     private var stage: Stage? = null
     private var outputLabel: Label? = null
 
+
+
     override fun create() {
+
+
+
+
         stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = stage
 
@@ -68,7 +77,7 @@ class Main : ApplicationAdapter() {
         val button1: Button = TextButton("Text Button", mySkin, "small")
         button1.setSize((col_width).toFloat(), row_height.toFloat())
         button1.setPosition(
-            (col_width * 7).toFloat(),
+            (col_width * 2).toFloat(),
             (Gdx.graphics.height - row_height * 3).toFloat()
         )
         button1.addListener(object : InputListener() {
@@ -79,7 +88,7 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                camera!!.direction.rotate(5f,0f,1f, 0f)
+                camera!!.rotate(5f,1f,0f, 0f)
                 camera!!.update() // Обязательно обновите матрицу
                 outputLabel!!.setText("Press a Button 1")
             }
@@ -102,8 +111,8 @@ class Main : ApplicationAdapter() {
         val button2: Button = TextButton("Text Button", mySkin, "small")
         button2.setSize((col_width).toFloat(), row_height.toFloat())
         button2.setPosition(
-            (col_width * 7).toFloat(),
-            (Gdx.graphics.height - row_height * 5).toFloat()
+            (col_width * 3).toFloat(),
+            (Gdx.graphics.height - row_height * 4).toFloat()
         )
         button2.addListener(object : InputListener() {
             override fun touchUp(
@@ -114,7 +123,7 @@ class Main : ApplicationAdapter() {
                 button: Int
             ) {
 //                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
-                camera!!.direction.rotate(-5f,0f,1f, 0f)
+                camera!!.rotate(-5f,0f,1f, 0f)
                 camera!!.update()
                 outputLabel!!.setText("Press a Button 2")
             }
@@ -132,14 +141,12 @@ class Main : ApplicationAdapter() {
         })
         stage!!.addActor(button2)
 
-
-
-        // Text Button 3
+// Text Button 3
         val button3: Button = TextButton("Text Button", mySkin, "small")
         button3.setSize((col_width).toFloat(), row_height.toFloat())
         button3.setPosition(
-            (col_width * 9).toFloat(),
-            (Gdx.graphics.height - row_height * 3).toFloat()
+            (col_width * 2).toFloat(),
+            (Gdx.graphics.height - row_height * 5).toFloat()
         )
         button3.addListener(object : InputListener() {
             override fun touchUp(
@@ -149,9 +156,8 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                val direction = camera!!.direction.cpy().nor()
-                val distance = 0.04f
-                camera!!.position.add(direction.scl(distance))
+//                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
+                camera!!.rotate(-5f,1f,0f, 0f)
                 camera!!.update()
                 outputLabel!!.setText("Press a Button 3")
             }
@@ -170,12 +176,13 @@ class Main : ApplicationAdapter() {
         stage!!.addActor(button3)
 
 
+
         // Text Button 4
         val button4: Button = TextButton("Text Button", mySkin, "small")
         button4.setSize((col_width).toFloat(), row_height.toFloat())
         button4.setPosition(
-            (col_width * 9).toFloat(),
-            (Gdx.graphics.height - row_height * 5).toFloat()
+            (col_width * 1).toFloat(),
+            (Gdx.graphics.height - row_height * 4).toFloat()
         )
         button4.addListener(object : InputListener() {
             override fun touchUp(
@@ -185,9 +192,8 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                val direction = camera!!.direction.cpy().nor()
-                val distance = -0.04f
-                camera!!.position.add(direction.scl(distance))
+//                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
+                camera!!.rotate(5f,0f,1f, 0f)
                 camera!!.update()
                 outputLabel!!.setText("Press a Button 4")
             }
@@ -204,6 +210,80 @@ class Main : ApplicationAdapter() {
             }
         })
         stage!!.addActor(button4)
+
+
+
+
+        // Text Button 5
+        val button5: Button = TextButton("Text Button", mySkin, "small")
+        button5.setSize((col_width).toFloat(), row_height.toFloat())
+        button5.setPosition(
+            (col_width * 9).toFloat(),
+            (Gdx.graphics.height - row_height * 3).toFloat()
+        )
+        button5.addListener(object : InputListener() {
+            override fun touchUp(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                val direction = camera!!.direction.cpy().nor()
+                val distance = 0.04f
+                camera!!.position.add(direction.scl(distance))
+                camera!!.update()
+                outputLabel!!.setText("Press a Button 5")
+            }
+
+            override fun touchDown(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                outputLabel!!.setText("Pressed Text Button 5")
+                return true
+            }
+        })
+        stage!!.addActor(button5)
+
+
+        // Text Button 6
+        val button6: Button = TextButton("Text Button", mySkin, "small")
+        button6.setSize((col_width).toFloat(), row_height.toFloat())
+        button6.setPosition(
+            (col_width * 9).toFloat(),
+            (Gdx.graphics.height - row_height * 5).toFloat()
+        )
+        button6.addListener(object : InputListener() {
+            override fun touchUp(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ) {
+                val direction = camera!!.direction.cpy().nor()
+                val distance = -0.04f
+                camera!!.position.add(direction.scl(distance))
+                camera!!.update()
+                outputLabel!!.setText("Press a Button 6")
+            }
+
+            override fun touchDown(
+                event: InputEvent,
+                x: Float,
+                y: Float,
+                pointer: Int,
+                button: Int
+            ): Boolean {
+                outputLabel!!.setText("Pressed Text Button 6")
+                return true
+            }
+        })
+        stage!!.addActor(button6)
 
 
 
