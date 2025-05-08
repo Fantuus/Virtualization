@@ -50,6 +50,8 @@ class Main : ApplicationAdapter() {
     private var horizontal_angle_tagret = 0f
     private var vertical_angle_tagret = 0f
 
+    private val speed_rotation_camera = 10f
+
 
     override fun create() {
 
@@ -75,10 +77,7 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                val localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
-                val quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * 10)
-                camera!!.rotate(quatX)
-                camera!!.update() // Обязательно обновите матрицу
+                checkString(Rotation.UP.value)
                 outputLabel!!.setText("Press a Button 1")
             }
 
@@ -111,9 +110,7 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                val quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -10)
-                camera!!.rotate(quatY)
-                camera!!.update()
+                checkString(Rotation.RIGHT.value)
                 outputLabel!!.setText("Press a Button 2")
             }
 
@@ -145,10 +142,7 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                val localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
-                val quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * (-10))
-                camera!!.rotate(quatX)
-                camera!!.update()
+                checkString(Rotation.DOWN.value)
                 outputLabel!!.setText("Press a Button 3")
             }
 
@@ -182,9 +176,7 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                val quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * 10)
-                camera!!.rotate(quatY)
-                camera!!.update()
+                checkString(Rotation.LEFT.value)
                 outputLabel!!.setText("Press a Button 4")
             }
 
@@ -333,6 +325,31 @@ class Main : ApplicationAdapter() {
         sceneManager!!.skyBox = skybox
     }
 
+    fun checkString(str: String) {
+        val localX: Vector3
+        val quatX: Quaternion
+        val quatY: Quaternion
+        if (str == Rotation.UP.value) {
+            localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
+            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * speed_rotation_camera)
+            camera!!.rotate(quatX)
+            camera!!.update()
+        } else if (str == Rotation.DOWN.value) {
+            localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
+            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -speed_rotation_camera)
+            camera!!.rotate(quatX)
+            camera!!.update()
+        } else if (str == Rotation.LEFT.value) {
+            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * speed_rotation_camera)
+            camera!!.rotate(quatY)
+            camera!!.update()
+        } else if (str == Rotation.RIGHT.value) {
+            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -speed_rotation_camera)
+            camera!!.rotate(quatY)
+            camera!!.update()
+        }
+    }
+
     override fun resize(width: Int, height: Int) {
         sceneManager!!.updateViewport(width.toFloat(), height.toFloat())
     }
@@ -362,4 +379,13 @@ class Main : ApplicationAdapter() {
         brdfLUT!!.dispose()
         skybox!!.dispose()
     }
+}
+
+
+
+enum class Rotation(val value: String) {
+    UP("UP"),
+    DOWN("DOWN"),
+    LEFT("LEFT"),
+    RIGHT("RIGHT");
 }
