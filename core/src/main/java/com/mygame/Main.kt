@@ -79,7 +79,11 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                outputLabel!!.setText("Press a Button 1")
+//                camera!!.rotateAround(camera!!.position, Vector3.Y, 5f)
+//                camera!!.update()
+                camera!!.rotate(Vector3.Y, 5f) // 5f — угол поворота
+                camera!!.update() // Обязательно обновите матрицу
+                outputLabel!!.setText("Press a Button 1 ${camera!!.position}")
             }
 
             override fun touchDown(
@@ -111,7 +115,9 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                outputLabel!!.setText("Press a Button 2")
+                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
+                camera!!.update()
+                outputLabel!!.setText("Press a Button 2 ${camera!!.position}")
             }
 
             override fun touchDown(
@@ -144,7 +150,11 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                outputLabel!!.setText("Press a Button 3")
+                val direction = camera!!.direction.cpy().nor()
+                val distance = 0.04f
+                camera!!.position.add(direction.scl(distance))
+                camera!!.update()
+                outputLabel!!.setText("Press a Button 3 ${camera!!.position}")
             }
 
             override fun touchDown(
@@ -176,7 +186,11 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                outputLabel!!.setText("Press a Button 4")
+                val direction = camera!!.direction.cpy().nor()
+                val distance = -0.04f
+                camera!!.position.add(direction.scl(distance))
+                camera!!.update()
+                outputLabel!!.setText("Press a Button 4 ${camera!!.position}")
             }
 
             override fun touchDown(
@@ -196,8 +210,8 @@ class Main : ApplicationAdapter() {
 
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
-        outputLabel!!.setPosition(0f, row_height.toFloat())
-        outputLabel!!.setAlignment(Align.topLeft)
+        outputLabel!!.setPosition(0f, row_height.toFloat()*4)
+//        outputLabel!!.setAlignment(Align.topLeft)
         stage!!.addActor(outputLabel)
         // create scene
 
@@ -261,7 +275,9 @@ class Main : ApplicationAdapter() {
 
 
         // animate camera
-        camera!!.position.setFromSpherical(MathUtils.PI / 4, time * .3f).scl(.02f)
+//        camera!!.position.setFromSpherical(MathUtils.PI / 4, time * .3f).scl(.02f)
+
+//        camera!!.rotateAround(camera!!.position, Vector3.Y, 90f)
         camera!!.up.set(Vector3.Y)
         camera!!.lookAt(Vector3.Zero)
         camera!!.update()
