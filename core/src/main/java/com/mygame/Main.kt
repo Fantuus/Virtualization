@@ -2,16 +2,13 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.utils.ScreenUtils
 import net.mgsx.gltf.loaders.gltf.GLTFLoader
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute
@@ -21,21 +18,14 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset
 import net.mgsx.gltf.scene3d.scene.SceneManager
 import net.mgsx.gltf.scene3d.scene.SceneSkybox
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
-
-
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.graphics.g3d.utils.FirstPersonCameraController
-import com.badlogic.gdx.input.GestureDetector
+import com.badlogic.gdx.math.Quaternion
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Button
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
@@ -57,21 +47,18 @@ class Main : ApplicationAdapter() {
     private var stage: Stage? = null
     private var outputLabel: Label? = null
 
+    private var horizontal_angle_tagret = 0f
+    private var vertical_angle_tagret = 0f
 
 
     override fun create() {
-
-
-
 
         stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = stage
 
         val row_height = Gdx.graphics.width / 12
         val col_width = Gdx.graphics.width / 12
-
         val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
-
 
         // Text Button 1
         val button1: Button = TextButton("Text Button", mySkin, "small")
@@ -88,7 +75,9 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-                camera!!.rotate(5f,1f,0f, 0f)
+                val localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
+                val quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * 10)
+                camera!!.rotate(quatX)
                 camera!!.update() // Обязательно обновите матрицу
                 outputLabel!!.setText("Press a Button 1")
             }
@@ -122,8 +111,8 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-//                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
-                camera!!.rotate(-5f,0f,1f, 0f)
+                val quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -10)
+                camera!!.rotate(quatY)
                 camera!!.update()
                 outputLabel!!.setText("Press a Button 2")
             }
@@ -156,8 +145,9 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-//                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
-                camera!!.rotate(-5f,1f,0f, 0f)
+                val localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
+                val quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * (-10))
+                camera!!.rotate(quatX)
                 camera!!.update()
                 outputLabel!!.setText("Press a Button 3")
             }
@@ -192,8 +182,8 @@ class Main : ApplicationAdapter() {
                 pointer: Int,
                 button: Int
             ) {
-//                camera!!.rotateAround(camera!!.position, Vector3.Y, -5f)
-                camera!!.rotate(5f,0f,1f, 0f)
+                val quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * 10)
+                camera!!.rotate(quatY)
                 camera!!.update()
                 outputLabel!!.setText("Press a Button 4")
             }
@@ -290,7 +280,6 @@ class Main : ApplicationAdapter() {
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
         outputLabel!!.setPosition(0f, row_height.toFloat()*4)
-//        outputLabel!!.setAlignment(Align.topLeft)
         stage!!.addActor(outputLabel)
         // create scene
 
@@ -352,24 +341,14 @@ class Main : ApplicationAdapter() {
         val deltaTime = Gdx.graphics.deltaTime
         time += deltaTime
 
-
-        // animate camera
-//        camera!!.position.setFromSpherical(MathUtils.PI / 4, time * .3f).scl(.02f)
-
-//        camera!!.rotateAround(camera!!.position, Vector3.Y, 90f)
         camera!!.up.set(Vector3.Y)
         camera!!.update()
-
 
         // render
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
         sceneManager!!.update(deltaTime)
         sceneManager!!.render()
 
-
-
-//        Gdx.gl.glClearColor(1f, 1f, 1f, 1f)
-//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage!!.act()
         stage!!.draw()
     }
