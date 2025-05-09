@@ -48,6 +48,7 @@ class Main : ApplicationAdapter() {
     private var outputLabel: Label? = null
 
     private val speed_rotation_camera = 10f
+    private val speed_move_camera = 0.04f
 
 
     override fun create() {
@@ -68,7 +69,7 @@ class Main : ApplicationAdapter() {
         )
         button_rotate_up.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                checkString(Rotation.UP.value)
+                rotate_camera(RotationDirections.UP.value)
                 outputLabel!!.setText("Press rotate_up")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -87,7 +88,7 @@ class Main : ApplicationAdapter() {
         )
         button_rotate_right.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                checkString(Rotation.RIGHT.value)
+                rotate_camera(RotationDirections.RIGHT.value)
                 outputLabel!!.setText("Press rotate_right")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -106,7 +107,7 @@ class Main : ApplicationAdapter() {
         )
         button_rotate_down.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                checkString(Rotation.DOWN.value)
+                rotate_camera(RotationDirections.DOWN.value)
                 outputLabel!!.setText("Press rotate_down")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -125,7 +126,7 @@ class Main : ApplicationAdapter() {
         )
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                checkString(Rotation.LEFT.value)
+                rotate_camera(RotationDirections.LEFT.value)
                 outputLabel!!.setText("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -147,12 +148,7 @@ class Main : ApplicationAdapter() {
         )
         button_move_foward.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                val direction = camera!!.direction.cpy().nor()
-                val distance = 0.04f
-                direction.y = 0f
-                direction.nor()
-                camera!!.position.add(direction.scl(distance))
-                camera!!.update()
+                move_camera(MoveDirections.FORWARD.value)
                 outputLabel!!.setText("Press move_foward")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -171,12 +167,7 @@ class Main : ApplicationAdapter() {
         )
         button_move_backward.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                val direction = camera!!.direction.cpy().nor()
-                val distance = -0.04f
-                direction.y = 0f
-                direction.nor()
-                camera!!.position.add(direction.scl(distance))
-                camera!!.update()
+                move_camera(MoveDirections.BACKWARD.value)
                 outputLabel!!.setText("Press move_backward")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -249,30 +240,41 @@ class Main : ApplicationAdapter() {
         sceneManager!!.skyBox = skybox
     }
 
-    fun checkString(str: String) {
+    fun rotate_camera(direction: String, angle:Float = speed_rotation_camera) {
         val localX: Vector3
         val quatX: Quaternion
         val quatY: Quaternion
-        if (str == Rotation.UP.value) {
+        if (direction == RotationDirections.UP.value) {
             localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
-            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * speed_rotation_camera)
+            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * angle)
             camera!!.rotate(quatX)
-            camera!!.update()
-        } else if (str == Rotation.DOWN.value) {
+        } else if (direction == RotationDirections.DOWN.value) {
             localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
-            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -speed_rotation_camera)
+            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -angle)
             camera!!.rotate(quatX)
-            camera!!.update()
-        } else if (str == Rotation.LEFT.value) {
-            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * speed_rotation_camera)
+        } else if (direction == RotationDirections.LEFT.value) {
+            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * angle)
             camera!!.rotate(quatY)
-            camera!!.update()
-        } else if (str == Rotation.RIGHT.value) {
-            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -speed_rotation_camera)
+        } else if (direction == RotationDirections.RIGHT.value) {
+            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -angle)
             camera!!.rotate(quatY)
-            camera!!.update()
         }
+        camera!!.update()
     }
+
+    fun move_camera(move_direction: String, distance: Float = speed_move_camera) {
+        val direction = camera!!.direction.cpy().nor()
+        direction.y = 0f
+        direction.nor()
+        if (move_direction == MoveDirections.FORWARD.value) {
+            camera!!.position.add(direction.scl(distance))
+        } else if (move_direction == MoveDirections.BACKWARD.value) {
+            camera!!.position.add(direction.scl(-distance))
+        }
+        camera!!.update()
+    }
+
+
 
     override fun resize(width: Int, height: Int) {
         sceneManager!!.updateViewport(width.toFloat(), height.toFloat())
@@ -307,9 +309,15 @@ class Main : ApplicationAdapter() {
 
 
 
-enum class Rotation(val value: String) {
+enum class RotationDirections(val value: String) {
     UP("UP"),
     DOWN("DOWN"),
     LEFT("LEFT"),
     RIGHT("RIGHT");
+}
+
+
+enum class MoveDirections(val value: String) {
+    FORWARD("FORWARD"),
+    BACKWARD("BACKWARD");
 }
