@@ -149,6 +149,8 @@ class Main : ApplicationAdapter() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 val direction = camera!!.direction.cpy().nor()
                 val distance = 0.04f
+                direction.y = 0f
+                direction.nor()
                 camera!!.position.add(direction.scl(distance))
                 camera!!.update()
                 outputLabel!!.setText("Press move_foward")
@@ -171,6 +173,8 @@ class Main : ApplicationAdapter() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 val direction = camera!!.direction.cpy().nor()
                 val distance = -0.04f
+                direction.y = 0f
+                direction.nor()
                 camera!!.position.add(direction.scl(distance))
                 camera!!.update()
                 outputLabel!!.setText("Press move_backward")
