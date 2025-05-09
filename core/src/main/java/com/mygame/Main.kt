@@ -186,11 +186,15 @@ class Main : ApplicationAdapter() {
 
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
-        outputLabel!!.setPosition(0f, row_height.toFloat()*4)
+        outputLabel!!.setPosition(0f, row_height.toFloat()*8)
         stage!!.addActor(outputLabel)
         // create scene
 
-        val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/BoomBox/glTF/BoomBox.gltf"))
+
+
+
+
+        val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
         val scene = Scene(sceneAsset.scene)
 
 
@@ -200,13 +204,14 @@ class Main : ApplicationAdapter() {
 
         // setup camera (The BoomBox model is very small so you may need to adapt camera settings for your scene)
         camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-        val d = .02f
-        camera!!.near = d / 1000f
-        camera!!.far = d * 100
+        camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
+        camera!!.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
+        camera!!.position.set(0.02f, 2.5f, 2.2f)
+        camera!!.update()
         sceneManager!!.setCamera(camera)
 
 
-        // setup light
+//         setup light
         light = DirectionalLightEx()
         light!!.direction.set(1f, -3f, 1f).nor()
         light!!.color.set(Color.WHITE)
