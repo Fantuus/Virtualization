@@ -240,36 +240,36 @@ class Main : ApplicationAdapter() {
         sceneManager!!.skyBox = skybox
     }
 
-    fun rotate_camera(direction: String, angle:Float = speed_rotation_camera) {
+    fun rotate_camera(direction: String, angle_delta:Float = speed_rotation_camera) {
         val localX: Vector3
         val quatX: Quaternion
         val quatY: Quaternion
         if (direction == RotationDirections.UP.value) {
             localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
-            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * angle)
+            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * angle_delta)
             camera!!.rotate(quatX)
         } else if (direction == RotationDirections.DOWN.value) {
             localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
-            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -angle)
+            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -angle_delta)
             camera!!.rotate(quatX)
         } else if (direction == RotationDirections.LEFT.value) {
-            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * angle)
+            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * angle_delta)
             camera!!.rotate(quatY)
         } else if (direction == RotationDirections.RIGHT.value) {
-            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -angle)
+            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -angle_delta)
             camera!!.rotate(quatY)
         }
         camera!!.update()
     }
 
-    fun move_camera(move_direction: String, distance: Float = speed_move_camera) {
+    fun move_camera(move_direction: String, distance_delta: Float = speed_move_camera) {
         val direction = camera!!.direction.cpy().nor()
         direction.y = 0f
         direction.nor()
         if (move_direction == MoveDirections.FORWARD.value) {
-            camera!!.position.add(direction.scl(distance))
+            camera!!.position.add(direction.scl(distance_delta))
         } else if (move_direction == MoveDirections.BACKWARD.value) {
-            camera!!.position.add(direction.scl(-distance))
+            camera!!.position.add(direction.scl(-distance_delta))
         }
         camera!!.update()
     }
