@@ -32,7 +32,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
  */
-class Main : ApplicationAdapter() {
+class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var sceneManager: SceneManager? = null
     private var sceneAsset: SceneAsset? = null
     private var scene: Scene? = null
@@ -135,6 +135,23 @@ class Main : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
         sceneManager!!.update(deltaTime)
         sceneManager!!.render()
+
+        if (sensorProvider.isXRotating) {
+            if (sensorProvider.rotationX > 0f) {
+                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, 1f)
+            }
+            else if (sensorProvider.rotationX < 0f) {
+                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, 1f)
+            }
+        }
+        if (sensorProvider.isYRotating) {
+            if (sensorProvider.rotationY > 0f) {
+                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, 1f)
+            }
+            else if (sensorProvider.rotationY < 0f) {
+                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, 1f)
+            }
+        }
 
         stage!!.act()
         stage!!.draw()

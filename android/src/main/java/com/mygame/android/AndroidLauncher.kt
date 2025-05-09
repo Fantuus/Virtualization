@@ -7,12 +7,27 @@ import com.mygame.Main
 
 /** Launches the Android application. */
 class AndroidLauncher : AndroidApplication() {
+    private lateinit var sensorProvider: AndroidSensorProvider
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val configuration = AndroidApplicationConfiguration().apply {
-            useImmersiveMode = true // Рекомендуется, но не обязательно
+        sensorProvider = AndroidSensorProvider(this)
+
+        val config = AndroidApplicationConfiguration().apply {
+            useImmersiveMode = true
         }
-        initialize(Main(), configuration)
+
+        initialize(Main(sensorProvider), config)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sensorProvider.startSensors()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorProvider.stopSensors()
     }
 }
