@@ -47,7 +47,6 @@ class Main : ApplicationAdapter() {
     private var light: DirectionalLightEx? = null
 
     private var stage: Stage? = null
-    private var outputLabel: Label? = null
 
     private val speed_rotation_camera = 10f
     private val speed_move_camera = 0.04f
@@ -118,6 +117,8 @@ class Main : ApplicationAdapter() {
 
 
 
+        var button_creator = ButtonCreator(сamera_сontroller, stage)
+        button_creator.create_label()
 
 
 
@@ -136,10 +137,10 @@ class Main : ApplicationAdapter() {
         button_rotate_up.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.UP.value)
-                outputLabel!!.setText("Press rotate_up")
+                button_creator.print_to_label("Press rotate_up")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                outputLabel!!.setText("Pressed rotate_up")
+                button_creator.print_to_label("Pressed rotate_up")
                 return true
             }
         })
@@ -155,10 +156,10 @@ class Main : ApplicationAdapter() {
         button_rotate_right.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value)
-                outputLabel!!.setText("Press rotate_right")
+                button_creator.print_to_label("Press rotate_right")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                outputLabel!!.setText("Pressed rotate_right")
+                button_creator.print_to_label("Pressed rotate_right")
                 return true
             }
         })
@@ -174,10 +175,10 @@ class Main : ApplicationAdapter() {
         button_rotate_down.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value)
-                outputLabel!!.setText("Press rotate_down")
+                button_creator.print_to_label("Press rotate_down")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                outputLabel!!.setText("Pressed rotate_down")
+                button_creator.print_to_label("Pressed rotate_down")
                 return true
             }
         })
@@ -193,10 +194,10 @@ class Main : ApplicationAdapter() {
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value)
-                outputLabel!!.setText("Press rotate_left")
+                button_creator.print_to_label("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                outputLabel!!.setText("Pressed rotate_left")
+                button_creator.print_to_label("Pressed rotate_left")
                 return true
             }
         })
@@ -215,10 +216,10 @@ class Main : ApplicationAdapter() {
         button_move_foward.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value)
-                outputLabel!!.setText("Press move_foward")
+                button_creator.print_to_label("Press move_foward")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                outputLabel!!.setText("Pressed move_foward")
+                button_creator.print_to_label("Pressed move_foward")
                 return true
             }
         })
@@ -234,21 +235,15 @@ class Main : ApplicationAdapter() {
         button_move_backward.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value)
-                outputLabel!!.setText("Press move_backward")
+                button_creator.print_to_label("Press move_backward")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                outputLabel!!.setText("Pressed move_backward")
+                button_creator.print_to_label("Pressed move_backward")
                 return true
             }
         })
         stage!!.addActor(button_move_backward)
 
-
-
-        outputLabel = Label("Press a Button", mySkin, "black")
-        outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
-        outputLabel!!.setPosition(0f, row_height.toFloat()*8)
-        stage!!.addActor(outputLabel)
     }
 
 
@@ -331,4 +326,25 @@ enum class RotationDirections(val value: String) {
 enum class MoveDirections(val value: String) {
     FORWARD("FORWARD"),
     BACKWARD("BACKWARD");
+}
+
+
+
+
+class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?) {
+    val row_height = Gdx.graphics.width / 12
+    val col_width = Gdx.graphics.width / 12
+    val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
+    private var outputLabel: Label? = null
+
+    fun create_label() {
+        outputLabel = Label("Press a Button", mySkin, "black")
+        outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
+        outputLabel!!.setPosition(0f, row_height.toFloat()*8)
+        stage!!.addActor(outputLabel)
+    }
+
+    fun print_to_label(text: String) {
+        outputLabel!!.setText("Pressed $text")
+    }
 }
