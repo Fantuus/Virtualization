@@ -34,7 +34,7 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
     var isXRotating = false
     var isYRotating = false
 
-
+    var isZMoving = false
 
 
 
@@ -121,7 +121,7 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         }
         val isXMoving = abs(accelXBuffer.average()) > threshold_acceleration_axis
         val isYMoving = abs(accelYBuffer.average()) > threshold_acceleration_axis
-        val isZMoving = abs(accelZBuffer.average()) > threshold_acceleration_axis
+        isZMoving = abs(accelZBuffer.average()) > threshold_acceleration_axis
         _movementStatus.value = "Лево Право:       ${if (isXMoving) "%.2f".format(accelXBuffer.average()) else "Stopped"}\n Верх Низ:           ${if (isYMoving) "%.2f".format(accelYBuffer.average()) else "Stopped"}\n Вперёд Назад:  ${if (isZMoving) "%.2f".format(accelZBuffer.average()) else "Stopped"}"
     }
 

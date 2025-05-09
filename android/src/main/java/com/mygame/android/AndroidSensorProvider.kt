@@ -21,6 +21,14 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
     override val isYRotating: Boolean
         get() = sensorData.isYRotating
 
+
+    override val isZMoving: Boolean
+        get() = sensorData.isZMoving
+
+
+    override val accelZBuffer: Float
+        get() = sensorData.accelZBuffer.average().toFloat()
+
     override fun startSensors() = sensorData.startListening()
     override fun stopSensors() = sensorData.stopListening()
 }

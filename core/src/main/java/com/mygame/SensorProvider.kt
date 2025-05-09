@@ -6,6 +6,8 @@ interface SensorProvider {
     val isMoving: Boolean
     val isXRotating: Boolean
     val isYRotating: Boolean
+    val isZMoving: Boolean
+    val accelZBuffer: Float
     fun startSensors()
     fun stopSensors()
 }

@@ -48,11 +48,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
     private var stage: Stage? = null
 
-    private val speed_rotation_camera = 10f
-    private val speed_move_camera = 0.04f
+    private val speed_rotation_camera = 25f
+    private val speed_move_camera = 0.4f
 
     private var button_creator: ButtonCreator? = null
 
+    private var real_move_direction = MoveDirections.STOP.value
+    private var isMoving_old = false
 
     override fun create() {
 
@@ -153,6 +155,29 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
             }
         }
 
+        if (!sensorProvider.isMoving) {
+            real_move_direction = MoveDirections.STOP.value
+        }
+
+        if (sensorProvider.isMoving && !isMoving_old) {
+            if (sensorProvider.accelZBuffer > 0f ) {
+                real_move_direction = MoveDirections.FORWARD.value
+            }
+            else if (sensorProvider.accelZBuffer < 0f ) {
+                real_move_direction = MoveDirections.BACKWARD.value
+            }
+        }
+
+
+        if (sensorProvider.isMoving) {
+            if (real_move_direction == MoveDirections.FORWARD.value) {
+                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, 0.01f)
+            }
+            else if (real_move_direction == MoveDirections.BACKWARD.value) {
+                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, 0.01f)
+            }
+        }
+
         stage!!.act()
         stage!!.draw()
     }
@@ -215,7 +240,8 @@ enum class RotationDirections(val value: String) {
 
 enum class MoveDirections(val value: String) {
     FORWARD("FORWARD"),
-    BACKWARD("BACKWARD");
+    BACKWARD("BACKWARD"),
+    STOP("STOP");
 }
 
 
