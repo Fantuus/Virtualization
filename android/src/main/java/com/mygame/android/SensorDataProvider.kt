@@ -40,7 +40,7 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
 
 
     // Параметры для гироскопа
-    private val threshold_gyroXYZ = 0.3f
+    var threshold_gyroXYZ = 0.3f
     private val len_gyroXYZBuffer = 3
     val gyroXBuffer = ArrayDeque<Float>(len_gyroXYZBuffer)
     val gyroYBuffer = ArrayDeque<Float>(len_gyroXYZBuffer)

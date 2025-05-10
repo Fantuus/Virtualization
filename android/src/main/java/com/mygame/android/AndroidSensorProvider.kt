@@ -25,6 +25,12 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
     override val isZMoving: Boolean
         get() = sensorData.isZMoving
 
+    override var threshold_gyroXYZ: Float
+        get() = sensorData.threshold_gyroXYZ.toFloat()
+        set(value) { sensorData.threshold_gyroXYZ = value.toFloat() }
+
+
+
 
     override val accelZBuffer: Float
         get() = sensorData.accelZBuffer.average().toFloat()

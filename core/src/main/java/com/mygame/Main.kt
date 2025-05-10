@@ -2,7 +2,6 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
@@ -27,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
@@ -48,8 +48,17 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
     private var stage: Stage? = null
 
-    private val speed_rotation_camera = 25f
-    private val speed_move_camera = 0.4f
+
+    var threshold: Threshold? = null
+    var sensitivity: Sensitivity? = null
+
+
+    private val speed_rotation_camera_by_button = 25f
+    private val speed_move_camera_by_button = 0.4f
+
+    private val speed_rotation_camera_by_sensor = 0.2f
+    private val speed_move_camera_by_sensor = 0.01f
+
 
     private var button_creator: ButtonCreator? = null
 
@@ -75,8 +84,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         camera!!.position.set(0.02f, 2.5f, 2.2f)
         camera!!.update()
         sceneManager!!.setCamera(camera)
-
-        сamera_сontroller = CameraController(camera, speed_move_camera, speed_rotation_camera)
+        сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button)
 
 //         setup light
         light = DirectionalLightEx()
@@ -110,8 +118,10 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         sceneManager!!.skyBox = skybox
 
 
+        threshold= Threshold(sensorProvider)
+        sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
 
-        button_creator = ButtonCreator(сamera_сontroller, stage)
+        button_creator = ButtonCreator(сamera_сontroller, stage, sensitivity)
         button_creator!!.create_label()
         button_creator!!.create_button_rotation_up()
         button_creator!!.create_button_rotation_right()
@@ -119,6 +129,11 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         button_creator!!.create_button_rotation_left()
         button_creator!!.create_button_move_forward()
         button_creator!!.create_button_move_backward()
+
+        button_creator!!.create_button_threshholt_gyro_minus()
+        button_creator!!.create_button_threshholt_gyro_plus()
+        button_creator!!.create_button_speed_rotation_camera_by_sensor_minus()
+        button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
     }
 
 
@@ -138,27 +153,28 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         sceneManager!!.update(deltaTime)
         sceneManager!!.render()
 
+        Gdx.app.log("cycle", "")
         if (sensorProvider.isXRotating) {
             if (sensorProvider.rotationX > 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, 1f)
+                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, sensitivity!!.speed_rotation_camera_by_sensor)
+                Gdx.app.log("Sensor rotate", "true")
             }
             else if (sensorProvider.rotationX < 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, 1f)
+                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, sensitivity!!.speed_rotation_camera_by_sensor)
             }
         }
         if (sensorProvider.isYRotating) {
             if (sensorProvider.rotationY > 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, 1f)
+                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, sensitivity!!.speed_rotation_camera_by_sensor)
             }
             else if (sensorProvider.rotationY < 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, 1f)
+                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, sensitivity!!.speed_rotation_camera_by_sensor)
             }
         }
 
         if (!sensorProvider.isMoving) {
             real_move_direction = MoveDirections.STOP.value
         }
-
         if (sensorProvider.isMoving && !isMoving_old) {
             if (sensorProvider.accelZBuffer > 0f ) {
                 real_move_direction = MoveDirections.FORWARD.value
@@ -171,10 +187,10 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, 0.01f)
+                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, speed_move_camera_by_sensor)
             }
             else if (real_move_direction == MoveDirections.BACKWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, 0.01f)
+                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, speed_move_camera_by_sensor)
             }
         }
 
@@ -247,7 +263,7 @@ enum class MoveDirections(val value: String) {
 
 
 
-class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?) {
+class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?, val sensitivity: Sensitivity?) {
     val row_height = Gdx.graphics.width / 12
     val col_width = Gdx.graphics.width / 12
     val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
@@ -256,12 +272,13 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
     fun create_label() {
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
-        outputLabel!!.setPosition(0f, row_height.toFloat()*8)
+        outputLabel!!.setPosition(0f, row_height.toFloat()*4)
+        outputLabel!!.setFontScale(2f)
         stage!!.addActor(outputLabel)
     }
 
     fun print_to_label(text: String) {
-        outputLabel!!.setText("Pressed $text")
+        outputLabel!!.setText(text)
     }
 
     fun create_button_rotation_up() {
@@ -387,5 +404,88 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
             }
         })
         stage!!.addActor(button_move_backward)
+    }
+
+
+
+
+    fun create_button_threshholt_gyro_minus() {
+        val button_rotate_up: Button = TextButton("T -", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 1).toFloat(),
+            (Gdx.graphics.height - row_height * 1).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                val new_threshold_gyroXYZ = sensitivity!!.threshold!!.sensorProvider.threshold_gyroXYZ - 0.01f
+                sensitivity!!.threshold!!.change_threshold(new_threshold_gyroXYZ)
+                print_to_label("threshold_gyroXYZ: ${sensitivity.threshold!!.sensorProvider.threshold_gyroXYZ}")
+                return true
+            }
+        })
+        stage!!.addActor(button_rotate_up)
+    }
+
+    fun create_button_threshholt_gyro_plus() {
+        val button_rotate_up: Button = TextButton("T +", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 2).toFloat(),
+            (Gdx.graphics.height - row_height * 1).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                val new_threshold_gyroXYZ = sensitivity!!.threshold!!.sensorProvider.threshold_gyroXYZ + 0.01f
+                sensitivity.threshold!!.change_threshold(new_threshold_gyroXYZ)
+                print_to_label("threshold_gyroXYZ: ${sensitivity.threshold!!.sensorProvider.threshold_gyroXYZ}")
+                return true
+            }
+        })
+        stage!!.addActor(button_rotate_up)
+    }
+
+    fun create_button_speed_rotation_camera_by_sensor_minus() {
+        val button_rotate_up: Button = TextButton("R -", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 1).toFloat(),
+            (Gdx.graphics.height - row_height * 2).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                sensitivity!!.speed_rotation_camera_by_sensor -= 0.2f
+                print_to_label("rotation_by_sensor: ${sensitivity!!.speed_rotation_camera_by_sensor}")
+                return true
+            }
+        })
+        stage!!.addActor(button_rotate_up)
+    }
+
+    fun create_button_speed_rotation_camera_by_sensor_plus() {
+        val button_rotate_up: Button = TextButton("R +", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 2).toFloat(),
+            (Gdx.graphics.height - row_height * 2).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                sensitivity!!.speed_rotation_camera_by_sensor += 0.2f
+                print_to_label("rotation_by_sensor: ${sensitivity!!.speed_rotation_camera_by_sensor}")
+                return true
+            }
+        })
+        stage!!.addActor(button_rotate_up)
+    }
+}
+
+
+class Sensitivity(var threshold: Threshold?, var speed_rotation_camera_by_button: Float, var speed_move_camera_by_button: Float, var speed_rotation_camera_by_sensor: Float, var speed_move_camera_by_sensor: Float)
+
+class Threshold(var sensorProvider: SensorProvider) {
+
+    fun change_threshold(new_val: Float) {
+        sensorProvider.threshold_gyroXYZ = new_val
     }
 }

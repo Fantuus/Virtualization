@@ -8,6 +8,7 @@ interface SensorProvider {
     val isYRotating: Boolean
     val isZMoving: Boolean
     val accelZBuffer: Float
+    var threshold_gyroXYZ: Float
     fun startSensors()
     fun stopSensors()
 }
