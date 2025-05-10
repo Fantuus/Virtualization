@@ -170,12 +170,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         if (sensorProvider.isYRotating) {
             if (sensorProvider.rotationY > 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, sensitivity!!.speed_rotation_camera_by_sensor)
+                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, sensorProvider.rotationY)
             }
             else if (sensorProvider.rotationY < 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, sensitivity!!.speed_rotation_camera_by_sensor)
+                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
             }
         }
+        button_creator!!.print_to_label("l-r: ${sensorProvider.rotationX}    u-d: ${sensorProvider.rotationY}")
 
 
         if (!sensorProvider.isMoving) {
