@@ -83,7 +83,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
         camera!!.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
-        camera!!.position.set(0.02f, 2.3f, 2.2f)
+        camera!!.position.set(-0.2f, 2.3f, 0.5f)
         camera!!.update()
         sceneManager!!.setCamera(camera)
         сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button)
