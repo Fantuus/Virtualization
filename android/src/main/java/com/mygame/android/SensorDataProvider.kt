@@ -6,6 +6,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import androidx.compose.runtime.*
 import kotlin.math.*
 
@@ -36,11 +37,13 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
 
     var isZMoving = false
 
+    val threshold_gyroXYZ_list =               listOf(0f, 0.1f, 0.15f, 0.2f, 0.3f, 0.45f, 0.7f, 0.9f, 1.5f, 1.9f, 2.5f, )
+    val speed_rotation_camera_by_sensor_list = listOf(0f, 0.3f, 0.4f,  0.6f, 0.8f, 1.2f,  1.5f, 2.2f, 3.5f, 4.5f, 5.5f, )
 
 
 
     // Параметры для гироскопа
-    var threshold_gyroXYZ = 0.3f
+    var threshold_gyroXYZ =threshold_gyroXYZ_list[1]
     private val len_gyroXYZBuffer = 3
     val gyroXBuffer = ArrayDeque<Float>(len_gyroXYZBuffer)
     val gyroYBuffer = ArrayDeque<Float>(len_gyroXYZBuffer)
@@ -123,6 +126,24 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         val isYMoving = abs(accelYBuffer.average()) > threshold_acceleration_axis
         isZMoving = abs(accelZBuffer.average()) > threshold_acceleration_axis
         _movementStatus.value = "Лево Право:       ${if (isXMoving) "%.2f".format(accelXBuffer.average()) else "Stopped"}\n Верх Низ:           ${if (isYMoving) "%.2f".format(accelYBuffer.average()) else "Stopped"}\n Вперёд Назад:  ${if (isZMoving) "%.2f".format(accelZBuffer.average()) else "Stopped"}"
+    }
+    fun nearest_lower_rotatatin_velocity_by_gyroscope(input: Float): Float{
+        var my_input = input
+        val pairs = threshold_gyroXYZ_list.zip(speed_rotation_camera_by_sensor_list).sortedBy { it.first }
+        var is_positive = true
+        if (my_input < 0f) {
+            is_positive = false
+            my_input *= -1f
+        }
+        var speed_rotation_camera_by_sensor = pairs
+            .filter { it.first <= my_input }
+            .maxByOrNull { it.first } !!
+            .second
+        if (!is_positive) {
+            speed_rotation_camera_by_sensor *= -1f
+        }
+        Log.d("TRANSFORM", "$input        $speed_rotation_camera_by_sensor")
+        return speed_rotation_camera_by_sensor
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

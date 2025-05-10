@@ -28,6 +28,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
+import kotlin.math.abs
+
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
@@ -56,7 +58,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private val speed_rotation_camera_by_button = 25f
     private val speed_move_camera_by_button = 0.4f
 
-    private val speed_rotation_camera_by_sensor = 0.2f
+    private val speed_rotation_camera_by_sensor = 0.6f
     private val speed_move_camera_by_sensor = 0.01f
 
 
@@ -81,7 +83,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
         camera!!.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
-        camera!!.position.set(0.02f, 2.5f, 2.2f)
+        camera!!.position.set(0.02f, 2.3f, 2.2f)
         camera!!.update()
         sceneManager!!.setCamera(camera)
         сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button)
@@ -153,16 +155,19 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         sceneManager!!.update(deltaTime)
         sceneManager!!.render()
 
-        Gdx.app.log("cycle", "")
+//        Gdx.app.log("cycle", "")
+
         if (sensorProvider.isXRotating) {
             if (sensorProvider.rotationX > 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, sensitivity!!.speed_rotation_camera_by_sensor)
-                Gdx.app.log("Sensor rotate", "true")
+                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, sensorProvider.rotationX)
+//                Gdx.app.log("Sensor rotate", "true")
             }
             else if (sensorProvider.rotationX < 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, sensitivity!!.speed_rotation_camera_by_sensor)
+                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, abs(sensorProvider.rotationX))
             }
+            button_creator!!.print_to_label(sensorProvider.rotationX.toString())
         }
+
         if (sensorProvider.isYRotating) {
             if (sensorProvider.rotationY > 0f) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, sensitivity!!.speed_rotation_camera_by_sensor)
@@ -171,6 +176,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
                 сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, sensitivity!!.speed_rotation_camera_by_sensor)
             }
         }
+
 
         if (!sensorProvider.isMoving) {
             real_move_direction = MoveDirections.STOP.value
@@ -184,13 +190,12 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
             }
         }
 
-
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, speed_move_camera_by_sensor)
+//                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, speed_move_camera_by_sensor)
             }
             else if (real_move_direction == MoveDirections.BACKWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, speed_move_camera_by_sensor)
+//                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, speed_move_camera_by_sensor)
             }
         }
 
@@ -454,7 +459,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_rotate_up.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                sensitivity!!.speed_rotation_camera_by_sensor -= 0.2f
+                sensitivity!!.speed_rotation_camera_by_sensor -= 0.1f
                 print_to_label("rotation_by_sensor: ${sensitivity!!.speed_rotation_camera_by_sensor}")
                 return true
             }
@@ -471,7 +476,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_rotate_up.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
-                sensitivity!!.speed_rotation_camera_by_sensor += 0.2f
+                sensitivity!!.speed_rotation_camera_by_sensor += 0.1f
                 print_to_label("rotation_by_sensor: ${sensitivity!!.speed_rotation_camera_by_sensor}")
                 return true
             }

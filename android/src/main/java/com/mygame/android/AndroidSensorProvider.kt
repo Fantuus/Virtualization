@@ -7,7 +7,8 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
     private val sensorData = SensorDataProvider(context)
 
     override val rotationX: Float
-        get() = sensorData.gyroXBuffer.average().toFloat()
+        get() = sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(sensorData.gyroXBuffer.average().toFloat())
+//        get() = sensorData.gyroXBuffer.average().toFloat()
 
     override val rotationY: Float
         get() = sensorData.gyroYBuffer.average().toFloat()
