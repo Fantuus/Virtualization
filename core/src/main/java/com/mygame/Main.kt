@@ -21,6 +21,7 @@ import net.mgsx.gltf.scene3d.scene.SceneManager
 import net.mgsx.gltf.scene3d.scene.SceneSkybox
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
 import com.badlogic.gdx.math.Quaternion
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -68,19 +69,25 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
     private var real_move_direction = MoveDirections.STOP.value
     private var isMoving_old = false
 
-    var cloc = 0
+    private var zoneBounds = BoundingBox()
 
     override fun create() {
 
         stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = stage
-
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
         scene = Scene(sceneAsset.scene)
 //        scene.modelInstance.transform.scl(1f)
 
-//        scene!!.animationController.setAnimation("", 1)
+        val zoneNode = scene!!.modelInstance.getNode("zone_block_1")
+        Gdx.app.log("NO     DE", "$zoneNode")
+        if (zoneNode != null) {
+            zoneNode.calculateBoundingBox(zoneBounds)
+        } else {
+            Gdx.app.error("ZONE", "Зона Zone_block_1 не найдена в модели!")
+        }
+
 
         sceneManager = SceneManager()
         sceneManager!!.addScene(scene)
@@ -160,6 +167,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         sceneManager!!.update(deltaTime)
         sceneManager!!.render()
 
+
+        if (zoneBounds.contains(camera!!.position)) {
+            // Если да — запускаем анимацию block_1Action.001
+            Gdx.app.log("IN    NODE", "True")
+            scene!!.animationController.action("block_1Action.001", 1, 1f, this, 0f)
+
+        }
 //        Gdx.app.log("cycle", "")
 
         if (sensorProvider.isXRotating) {
@@ -207,13 +221,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
             }
         }
         button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
-
-        cloc += 1
-        if ( cloc ==200){
-            Gdx.app.log("cloc", "$cloc")
-//            scene!!.animationController.action("EmitterAction", 1, 1f, this, 0f)
-        }
-
 
         stage!!.act()
         stage!!.draw()
@@ -392,8 +399,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value)
-//                scene.animationController.setAnimation("EmitterAction", 1)
-                scene.animationController.action("EmitterAction", 1, 1f, this@ButtonCreator, 0f)
+                scene.animationController.action("block_1Action.001", 1, 1f, this@ButtonCreator, 0f)
                 print_to_label("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
