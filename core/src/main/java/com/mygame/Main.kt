@@ -2,11 +2,13 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import net.mgsx.gltf.loaders.gltf.GLTFLoader
@@ -33,7 +35,8 @@ import kotlin.math.abs
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
  */
-class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
+class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
+    AnimationController.AnimationListener {
     private var sceneManager: SceneManager? = null
     private var sceneAsset: SceneAsset? = null
     private var scene: Scene? = null
@@ -46,7 +49,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var time = 0f
     private var skybox: SceneSkybox? = null
     private var light: DirectionalLightEx? = null
-
     private var stage: Stage? = null
 
 
@@ -66,6 +68,8 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var real_move_direction = MoveDirections.STOP.value
     private var isMoving_old = false
 
+    var cloc = 0
+
     override fun create() {
 
         stage = Stage(ScreenViewport())
@@ -73,8 +77,10 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
-        val scene = Scene(sceneAsset.scene)
+        scene = Scene(sceneAsset.scene)
 //        scene.modelInstance.transform.scl(1f)
+
+//        scene!!.animationController.setAnimation("", 1)
 
         sceneManager = SceneManager()
         sceneManager!!.addScene(scene)
@@ -122,7 +128,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         threshold= Threshold(sensorProvider)
         sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
 
-        button_creator = ButtonCreator(сamera_сontroller, stage, sensitivity, scene)
+        button_creator = ButtonCreator(сamera_сontroller, stage, sensitivity, scene!!)
         button_creator!!.create_label()
         button_creator!!.create_button_rotation_up()
         button_creator!!.create_button_rotation_right()
@@ -202,6 +208,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         }
         button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
 
+        cloc += 1
+        if ( cloc ==200){
+            Gdx.app.log("cloc", "$cloc")
+//            scene!!.animationController.action("EmitterAction", 1, 1f, this, 0f)
+        }
+
+
         stage!!.act()
         stage!!.draw()
     }
@@ -214,6 +227,14 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         specularCubemap!!.dispose()
         brdfLUT!!.dispose()
         skybox!!.dispose()
+    }
+
+    override fun onEnd(animation: AnimationController.AnimationDesc?) {
+        // Вызывается, когда анимация закончилась
+    }
+
+    override fun onLoop(animation: AnimationController.AnimationDesc?) {
+        // Вызывается, когда циклическая анимация повторяется
     }
 }
 
@@ -271,12 +292,20 @@ enum class MoveDirections(val value: String) {
 
 
 
-class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?, val sensitivity: Sensitivity?, var scene: Scene) {
+class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?, val sensitivity: Sensitivity?, var scene: Scene): ApplicationAdapter(),
+    AnimationController.AnimationListener  {
     val row_height = Gdx.graphics.width / 12
     val col_width = Gdx.graphics.width / 12
     val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
     private var outputLabel: Label? = null
 
+    override fun onEnd(animation: AnimationController.AnimationDesc?) {
+        // Вызывается, когда анимация закончилась
+    }
+
+    override fun onLoop(animation: AnimationController.AnimationDesc?) {
+        // Вызывается, когда циклическая анимация повторяется
+    }
     fun create_label() {
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
@@ -363,8 +392,8 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value)
-                scene.animationController.setAnimation("EmitterAction", 1)
-                Gdx.app.log("EmitterAction", "")
+//                scene.animationController.setAnimation("EmitterAction", 1)
+                scene.animationController.action("EmitterAction", 1, 1f, this@ButtonCreator, 0f)
                 print_to_label("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
