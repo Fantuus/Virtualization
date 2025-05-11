@@ -78,7 +78,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
         scene = Scene(sceneAsset.scene)
-//        scene.modelInstance.transform.scl(1f)
 
         val zoneNode = scene!!.modelInstance.getNode("zone_block_1")
         Gdx.app.log("NO     DE", "$zoneNode")
@@ -87,7 +86,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         } else {
             Gdx.app.error("ZONE", "Зона Zone_block_1 не найдена в модели!")
         }
-
 
         sceneManager = SceneManager()
         sceneManager!!.addScene(scene)
@@ -174,7 +172,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
             scene!!.animationController.action("block_1Action.001", 1, 1f, this, 0f)
 
         }
-//        Gdx.app.log("cycle", "")
 
         if (sensorProvider.isXRotating) {
             if (sensorProvider.rotationX > 0f) {
@@ -399,7 +396,6 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value)
-                scene.animationController.action("block_1Action.001", 1, 1f, this@ButtonCreator, 0f)
                 print_to_label("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
