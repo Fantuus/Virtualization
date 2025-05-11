@@ -75,6 +75,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
         val scene = Scene(sceneAsset.scene)
+//        scene.modelInstance.transform.scl(1f)
 
         sceneManager = SceneManager()
         sceneManager!!.addScene(scene)
@@ -83,7 +84,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
         camera!!.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
-        camera!!.position.set(-0.2f, 2.3f, 0.5f)
+        camera!!.position.set(-0.2f, 1.6f, 0.5f)
         camera!!.update()
         sceneManager!!.setCamera(camera)
         сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button)
@@ -193,10 +194,10 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
-//                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, speed_move_camera_by_sensor)
+                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, speed_move_camera_by_sensor)
             }
             else if (real_move_direction == MoveDirections.BACKWARD.value) {
-//                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, speed_move_camera_by_sensor)
+                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, speed_move_camera_by_sensor)
             }
         }
 
