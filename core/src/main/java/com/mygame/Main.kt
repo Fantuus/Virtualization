@@ -29,7 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
-
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
@@ -79,7 +78,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         sceneManager = SceneManager()
         sceneManager!!.addScene(scene)
-
         // setup camera (The BoomBox model is very small so you may need to adapt camera settings for your scene)
         camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
@@ -124,7 +122,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         threshold= Threshold(sensorProvider)
         sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
 
-        button_creator = ButtonCreator(сamera_сontroller, stage, sensitivity)
+        button_creator = ButtonCreator(сamera_сontroller, stage, sensitivity, scene)
         button_creator!!.create_label()
         button_creator!!.create_button_rotation_up()
         button_creator!!.create_button_rotation_right()
@@ -178,7 +176,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
             }
         }
 //        button_creator!!.print_to_label("l-r: ${sensorProvider.rotationX}    u-d: ${sensorProvider.rotationY}")
-        Gdx.app.log("Sensor move and rotate status", "${sensorProvider.isMoving}   ${!isMoving_old}   ${!sensorProvider.isXRotating}    ${!sensorProvider.isYRotating}")
+//        Gdx.app.log("Sensor move and rotate status", "${sensorProvider.isMoving}   ${!isMoving_old}   ${!sensorProvider.isXRotating}    ${!sensorProvider.isYRotating}")
 
         if (!sensorProvider.isMoving) {
             real_move_direction = MoveDirections.STOP.value
@@ -191,8 +189,8 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
                 real_move_direction = MoveDirections.BACKWARD.value
             }
         }
-        Gdx.app.log("real_move_direction", "$real_move_direction")
-        Gdx.app.log("", "")
+//        Gdx.app.log("real_move_direction", "$real_move_direction")
+//        Gdx.app.log("", "")
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
@@ -273,7 +271,7 @@ enum class MoveDirections(val value: String) {
 
 
 
-class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?, val sensitivity: Sensitivity?) {
+class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?, val sensitivity: Sensitivity?, var scene: Scene) {
     val row_height = Gdx.graphics.width / 12
     val col_width = Gdx.graphics.width / 12
     val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
@@ -365,6 +363,8 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value)
+                scene.animationController.setAnimation("EmitterAction", 1)
+                Gdx.app.log("EmitterAction", "")
                 print_to_label("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
