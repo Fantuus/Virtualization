@@ -41,6 +41,14 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
     val speed_rotation_camera_by_sensor_list = listOf(0f, 0.2f, 0.22f, 0.25f, 0.35f, 0.6f, 0.8f, 1.1f, 1.6f, 2.2f, 4f, )
 
 
+//    val threshold_accelerationZ_list = listOf(0f, 0.1f, 0.15f, 0.2f,  0.3f, 0.45f, 0.7f, 0.9f, 1.5f, 1.9f, 2.5f, )
+
+
+    val threshold_acceleration_axis_list =      listOf(0f, 0.1f )
+    val speed_move_camera_by_sensor_axis_list = listOf(0f, 0.05f )
+
+
+
 
     // Параметры для гироскопа
     var threshold_gyroXYZ =threshold_gyroXYZ_list[1]
@@ -50,8 +58,8 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
     private val gyroZBuffer = ArrayDeque<Float>(len_gyroXYZBuffer)
 
     // Параметры для линейного ускорения
-    private val threshold_acceleration = 0.8f
-    private val threshold_acceleration_axis = 0.7f
+    private val threshold_acceleration = 0.5f
+    private val threshold_acceleration_axis = threshold_acceleration_axis_list[1]
     private val len_accelerationBuffer = 10
     private val accelerationBuffer = ArrayDeque<Float>(len_accelerationBuffer)
     private val accelXBuffer = ArrayDeque<Float>(len_accelerationBuffer)
@@ -127,9 +135,20 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         isZMoving = abs(accelZBuffer.average()) > threshold_acceleration_axis
         _movementStatus.value = "Лево Право:       ${if (isXMoving) "%.2f".format(accelXBuffer.average()) else "Stopped"}\n Верх Низ:           ${if (isYMoving) "%.2f".format(accelYBuffer.average()) else "Stopped"}\n Вперёд Назад:  ${if (isZMoving) "%.2f".format(accelZBuffer.average()) else "Stopped"}"
     }
-    fun nearest_lower_rotatatin_velocity_by_gyroscope(input: Float): Float{
+
+
+    fun nearest_lower_rotatatin_velocity_by_gyroscope(input: Float, thresholdType: ThresholdType): Float{
         var my_input = input
-        val pairs = threshold_gyroXYZ_list.zip(speed_rotation_camera_by_sensor_list).sortedBy { it.first }
+        var pairs = listOf(0f, 1f).zip(listOf(0f, 1f)).sortedBy { it.first }
+        if (thresholdType == ThresholdType.THRESHOLD_GYRO_XYZ) {
+            pairs = threshold_gyroXYZ_list.zip(speed_rotation_camera_by_sensor_list).sortedBy { it.first }
+        }
+        else if (thresholdType == ThresholdType.THRESHOLD_ACCELERATION_AXIS) {
+            pairs = threshold_acceleration_axis_list.zip(speed_move_camera_by_sensor_axis_list).sortedBy { it.first }
+        }
+        else {
+            return 0f
+        }
         var is_positive = true
         if (my_input < 0f) {
             is_positive = false
@@ -142,9 +161,16 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         if (!is_positive) {
             speed_rotation_camera_by_sensor *= -1f
         }
-        Log.d("TRANSFORM", "$input        $speed_rotation_camera_by_sensor")
         return speed_rotation_camera_by_sensor
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+}
+
+
+
+enum class ThresholdType(val value: String) {
+    THRESHOLD_GYRO_XYZ("THRESHOLD_GYRO_XYZ"),
+//    THRESHOLD_ACCELERATION("THRESHOLD_ACCELERATION"),
+    THRESHOLD_ACCELERATION_AXIS("THRESHOLD_ACCELERATION_AXIS");
 }

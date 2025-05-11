@@ -177,7 +177,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
                 сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
             }
         }
-        button_creator!!.print_to_label("l-r: ${sensorProvider.rotationX}    u-d: ${sensorProvider.rotationY}")
+//        button_creator!!.print_to_label("l-r: ${sensorProvider.rotationX}    u-d: ${sensorProvider.rotationY}")
 
 
         if (!sensorProvider.isMoving) {
@@ -194,12 +194,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, speed_move_camera_by_sensor)
+                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, sensorProvider.MovingZ)
             }
             else if (real_move_direction == MoveDirections.BACKWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, speed_move_camera_by_sensor)
+                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ))
             }
         }
+        button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
 
         stage!!.act()
         stage!!.draw()
