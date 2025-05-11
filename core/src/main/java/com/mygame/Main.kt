@@ -178,12 +178,12 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
             }
         }
 //        button_creator!!.print_to_label("l-r: ${sensorProvider.rotationX}    u-d: ${sensorProvider.rotationY}")
-
+        Gdx.app.log("Sensor move and rotate status", "${sensorProvider.isMoving}   ${!isMoving_old}   ${!sensorProvider.isXRotating}    ${!sensorProvider.isYRotating}")
 
         if (!sensorProvider.isMoving) {
             real_move_direction = MoveDirections.STOP.value
         }
-        if (sensorProvider.isMoving && !isMoving_old) {
+        if (sensorProvider.isMoving && !isMoving_old && !sensorProvider.isXRotating && !sensorProvider.isYRotating) {
             if (sensorProvider.accelZBuffer > 0f ) {
                 real_move_direction = MoveDirections.FORWARD.value
             }
@@ -191,13 +191,15 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
                 real_move_direction = MoveDirections.BACKWARD.value
             }
         }
+        Gdx.app.log("real_move_direction", "$real_move_direction")
+        Gdx.app.log("", "")
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
                 сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, sensorProvider.MovingZ)
             }
             else if (real_move_direction == MoveDirections.BACKWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ))
+                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
             }
         }
         button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
