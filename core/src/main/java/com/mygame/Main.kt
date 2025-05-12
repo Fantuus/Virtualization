@@ -29,7 +29,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
-import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
 /**
@@ -72,19 +71,18 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
     private var zoneBounds = BoundingBox()
 
     override fun create() {
-
         stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = stage
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
         scene = Scene(sceneAsset.scene)
 
-        val zoneNode = scene!!.modelInstance.getNode("zone_block_1")
+        val zoneNode = scene!!.modelInstance.getNode("zone_anim_1")
         Gdx.app.log("NO     DE", "$zoneNode")
         if (zoneNode != null) {
             zoneNode.calculateBoundingBox(zoneBounds)
         } else {
-            Gdx.app.error("ZONE", "Зона Zone_block_1 не найдена в модели!")
+            Gdx.app.error("ZONE", "Зона zone_anim_1 не найдена в модели!")
         }
 
         sceneManager = SceneManager()
@@ -169,7 +167,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         if (zoneBounds.contains(camera!!.position)) {
             // Если да — запускаем анимацию block_1Action.001
             Gdx.app.log("IN    NODE", "True")
-            scene!!.animationController.action("block_1Action.001", 1, 1f, this, 0f)
+            scene!!.animationController.action("anim_1", 1, 1f, this, 0f)
 
         }
 
