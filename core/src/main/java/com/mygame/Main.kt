@@ -37,8 +37,7 @@ import com.google.gson.reflect.TypeToken
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
  */
-class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
-    AnimationController.AnimationListener {
+class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var sceneManager: SceneManager? = null
     private var sceneAsset: SceneAsset? = null
     private var scene: Scene? = null
@@ -70,8 +69,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
     private var real_move_direction = MoveDirections.STOP.value
     private var isMoving_old = false
 
-    private var zoneBounds = BoundingBox()
-    val triggers = Triggers()
+    var triggers: Triggers? = null
 
     override fun create() {
         stage = Stage(ScreenViewport())
@@ -83,15 +81,9 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
 
 
 
-        triggers.parse_gltf()
-        triggers.find_animations()
-        triggers.find_triggers_zone()
 
 
-        val zoneNode = scene!!.modelInstance.getNode(triggers.trigger_zones[0])
-        if (zoneNode != null) {
-            zoneNode.calculateBoundingBox(zoneBounds)
-        }
+
 
 
         sceneManager = SceneManager()
@@ -152,6 +144,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         button_creator!!.create_button_threshholt_gyro_plus()
         button_creator!!.create_button_speed_rotation_camera_by_sensor_minus()
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
+
+
+        triggers = Triggers(scene)
+        triggers!!.parse_gltf()
+        triggers!!.find_animations()
+        triggers!!.find_triggers_zone()
+        triggers!!.create_bounding_boxes()
     }
 
 
@@ -172,10 +171,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         sceneManager!!.render()
 
 
-        if (zoneBounds.contains(camera!!.position)) {
-            scene!!.animationController.action(triggers.animationNames[0], 1, 1f, this, 0f)
-
-        }
+        triggers!!.check_and_start_animations(camera!!.position)
 
         if (sensorProvider.isXRotating) {
             if (sensorProvider.rotationX > 0f) {
@@ -232,13 +228,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         skybox!!.dispose()
     }
 
-    override fun onEnd(animation: AnimationController.AnimationDesc?) {
-        // Вызывается, когда анимация закончилась
-    }
-
-    override fun onLoop(animation: AnimationController.AnimationDesc?) {
-        // Вызывается, когда циклическая анимация повторяется
-    }
 }
 
 class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Float, var speed_rotation_camera: Float ) {
@@ -531,10 +520,11 @@ class Threshold(var sensorProvider: SensorProvider) {
 }
 
 
-class Triggers() {
+class Triggers(var scene: Scene?): AnimationController.AnimationListener {
     var map: HashMap<String, Any>? = null
     val animationNames = mutableListOf<String>()
     val trigger_zones = mutableListOf<String>()
+    private val zoneBoundsList = mutableListOf<BoundingBox>()
 
     fun parse_gltf() {
         val fileHandle = Gdx.files.internal("models/worktable/worktable.gltf")
@@ -551,6 +541,7 @@ class Triggers() {
             val name = animationMap["name"] as? String ?: return@forEach
             animationNames.add(name)
         }
+        animationNames.sort()
         Gdx.app.log("animationNames", "$animationNames")
     }
 
@@ -563,6 +554,35 @@ class Triggers() {
                 trigger_zones.add(name)
             }
         }
+        trigger_zones.sort()
         Gdx.app.log("trigger_zones", "$trigger_zones")
+    }
+
+    fun create_bounding_boxes() {
+        for (zoneName in trigger_zones) {
+            val zoneNode = scene!!.modelInstance.getNode(zoneName)
+            if (zoneNode != null) {
+                val bounds = BoundingBox()
+                zoneNode.calculateBoundingBox(bounds)
+                zoneBoundsList.add(bounds)
+            }
+        }
+        Gdx.app.log("zoneBoundsList", "$zoneBoundsList")
+    }
+
+    fun check_and_start_animations(cameraPos: Vector3) {
+        for (i in 0 until zoneBoundsList.size) {
+            if (zoneBoundsList[i].contains(cameraPos)) {
+                scene!!.animationController.action(animationNames[i], 1, 1f, this, 0f)
+
+            }
+        }
+    }
+    override fun onEnd(animation: AnimationController.AnimationDesc?) {
+        // Вызывается, когда анимация закончилась
+    }
+
+    override fun onLoop(animation: AnimationController.AnimationDesc?) {
+        // Вызывается, когда циклическая анимация повторяется
     }
 }
