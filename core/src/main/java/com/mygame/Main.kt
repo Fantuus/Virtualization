@@ -2,7 +2,6 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
@@ -31,6 +30,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
@@ -69,6 +71,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
     private var isMoving_old = false
 
     private var zoneBounds = BoundingBox()
+    val triggers = Triggers()
 
     override fun create() {
         stage = Stage(ScreenViewport())
@@ -77,13 +80,19 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
         scene = Scene(sceneAsset.scene)
 
-        val zoneNode = scene!!.modelInstance.getNode("zone_anim_1")
-        Gdx.app.log("NO     DE", "$zoneNode")
+
+
+
+        triggers.parse_gltf()
+        triggers.find_animations()
+        triggers.find_triggers_zone()
+
+
+        val zoneNode = scene!!.modelInstance.getNode(triggers.trigger_zones[0])
         if (zoneNode != null) {
             zoneNode.calculateBoundingBox(zoneBounds)
-        } else {
-            Gdx.app.error("ZONE", "Зона zone_anim_1 не найдена в модели!")
         }
+
 
         sceneManager = SceneManager()
         sceneManager!!.addScene(scene)
@@ -111,7 +120,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
 
         // This texture is provided by the library, no need to have it in your assets.
         brdfLUT = Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"))
-
         sceneManager!!.setAmbientLight(1f)
         sceneManager!!.environment.set(
             PBRTextureAttribute(
@@ -165,16 +173,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
 
 
         if (zoneBounds.contains(camera!!.position)) {
-            // Если да — запускаем анимацию block_1Action.001
-            Gdx.app.log("IN    NODE", "True")
-            scene!!.animationController.action("anim_1", 1, 1f, this, 0f)
+            scene!!.animationController.action(triggers.animationNames[0], 1, 1f, this, 0f)
 
         }
 
         if (sensorProvider.isXRotating) {
             if (sensorProvider.rotationX > 0f) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, sensorProvider.rotationX)
-//                Gdx.app.log("Sensor rotate", "true")
             }
             else if (sensorProvider.rotationX < 0f) {
                 сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, abs(sensorProvider.rotationX))
@@ -190,8 +195,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
                 сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
             }
         }
-//        button_creator!!.print_to_label("l-r: ${sensorProvider.rotationX}    u-d: ${sensorProvider.rotationY}")
-//        Gdx.app.log("Sensor move and rotate status", "${sensorProvider.isMoving}   ${!isMoving_old}   ${!sensorProvider.isXRotating}    ${!sensorProvider.isYRotating}")
 
         if (!sensorProvider.isMoving) {
             real_move_direction = MoveDirections.STOP.value
@@ -204,8 +207,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter(),
                 real_move_direction = MoveDirections.BACKWARD.value
             }
         }
-//        Gdx.app.log("real_move_direction", "$real_move_direction")
-//        Gdx.app.log("", "")
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
@@ -526,5 +527,42 @@ class Threshold(var sensorProvider: SensorProvider) {
 
     fun change_threshold(new_val: Float) {
         sensorProvider.threshold_gyroXYZ = new_val
+    }
+}
+
+
+class Triggers() {
+    var map: HashMap<String, Any>? = null
+    val animationNames = mutableListOf<String>()
+    val trigger_zones = mutableListOf<String>()
+
+    fun parse_gltf() {
+        val fileHandle = Gdx.files.internal("models/worktable/worktable.gltf")
+        val jsonString = fileHandle.readString()
+        val gson = Gson()
+        map = gson.fromJson(jsonString, object : TypeToken<HashMap<String, Any>>() {}.type) as HashMap<String, Any>?
+        Gdx.app.log("map", "$map")
+    }
+
+    fun find_animations() {
+        val animationsJsonArray = map?.get("animations") as? List<*>
+        animationsJsonArray?.forEach { item ->
+            val animationMap = item as? Map<*, *> ?: return@forEach
+            val name = animationMap["name"] as? String ?: return@forEach
+            animationNames.add(name)
+        }
+        Gdx.app.log("animationNames", "$animationNames")
+    }
+
+    fun find_triggers_zone() {
+        val nodesJsonArray = map?.get("nodes") as? List<*>
+        nodesJsonArray?.forEach { item ->
+            val nodesMap = item as? Map<*, *> ?: return@forEach
+            val name = nodesMap["name"] as? String ?: return@forEach
+            if (name.startsWith("zone_", ignoreCase = false)) {
+                trigger_zones.add(name)
+            }
+        }
+        Gdx.app.log("trigger_zones", "$trigger_zones")
     }
 }
