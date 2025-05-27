@@ -531,6 +531,8 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
     val audio_trigger_zones = mutableListOf<String>()
     private val zoneBoundsList = mutableListOf<BoundingBox>()
     private val audioBoundsList = mutableListOf<BoundingBox>()
+    private val animationsLaunched = mutableMapOf<String, Boolean>()
+    private val audiosLaunched = mutableMapOf<String, Boolean>()
 
     // Словарь для хранения звуков
     private val soundMap = mutableMapOf<String, Sound>()
@@ -548,6 +550,7 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
             val animationMap = item as? Map<*, *> ?: return@forEach
             val name = animationMap["name"] as? String ?: return@forEach
             animationNames.add(name)
+            animationsLaunched[name] = false
         }
         animationNames.sort()
     }
@@ -561,6 +564,7 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
         for (file in files) {
             if (file.extension().equals("mp3", ignoreCase = true)) {
                 audioNames.add(file.name())
+                audiosLaunched[file.name()] = false
                 soundMap[file.name()] = Gdx.audio.newSound(Gdx.files.internal("sounds/${file.name()}"))
             }
         }
@@ -604,16 +608,18 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
 
     fun check_and_start_animations(cameraPos: Vector3) {
         for (i in 0 until zoneBoundsList.size) {
-            if (zoneBoundsList[i].contains(cameraPos)) {
+            if (zoneBoundsList[i].contains(cameraPos) && animationsLaunched[animationNames[i]] == false) {
                 scene!!.animationController.action(animationNames[i], 1, 1f, this, 0f)
+                animationsLaunched[animationNames[i]] = true
             }
         }
     }
 
     fun check_and_start_audios(cameraPos: Vector3) {
         for (i in 0 until audioBoundsList.size) {
-            if (audioBoundsList[i].contains(cameraPos)) {
+            if (audioBoundsList[i].contains(cameraPos) && audiosLaunched[audioNames[i]] == false) {
                 playAudio(audioNames[i])
+                audiosLaunched[audioNames[i]] = true
             }
         }
     }
