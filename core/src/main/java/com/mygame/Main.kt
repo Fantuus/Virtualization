@@ -32,6 +32,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.badlogic.gdx.audio.Sound //
+import com.badlogic.gdx.utils.GdxRuntimeException
 
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
@@ -149,6 +151,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         triggers = Triggers(scene)
         triggers!!.parse_gltf()
         triggers!!.find_animations()
+        triggers!!.find_audios()
         triggers!!.find_triggers_zone()
         triggers!!.create_bounding_boxes()
     }
@@ -520,18 +523,32 @@ class Threshold(var sensorProvider: SensorProvider) {
 }
 
 
-class Triggers(var scene: Scene?): AnimationController.AnimationListener {
+class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
     var map: HashMap<String, Any>? = null
     val animationNames = mutableListOf<String>()
+    val audioNames = mutableListOf<String>()
     val trigger_zones = mutableListOf<String>()
+    val audio_trigger_zones = mutableListOf<String>()
     private val zoneBoundsList = mutableListOf<BoundingBox>()
+    private val audioBoundsList = mutableListOf<BoundingBox>()
+
+    // Словарь для хранения звуков
+    private val soundMap = mutableMapOf<String, Sound>()
+
+    init {
+        try {
+            soundMap["audio_magic.mp3"] = Gdx.audio.newSound(Gdx.files.internal("sounds/audio_magic.mp3"))
+            soundMap["audio_fear.mp3"] = Gdx.audio.newSound(Gdx.files.internal("sounds/audio_fear.mp3"))
+        } catch (e: Exception) {
+            throw GdxRuntimeException("Не удалось загрузить звуковые файлы", e)
+        }
+    }
 
     fun parse_gltf() {
         val fileHandle = Gdx.files.internal("models/worktable/worktable.gltf")
         val jsonString = fileHandle.readString()
         val gson = Gson()
         map = gson.fromJson(jsonString, object : TypeToken<HashMap<String, Any>>() {}.type) as HashMap<String, Any>?
-        Gdx.app.log("map", "$map")
     }
 
     fun find_animations() {
@@ -542,7 +559,22 @@ class Triggers(var scene: Scene?): AnimationController.AnimationListener {
             animationNames.add(name)
         }
         animationNames.sort()
-        Gdx.app.log("animationNames", "$animationNames")
+    }
+
+    fun find_audios() {
+        val soundsFolder = Gdx.files.internal("sounds") // Путь к папке assets/sounds
+        if (!soundsFolder.exists() || !soundsFolder.isDirectory) {
+            Gdx.app.error("Sounds", "Папка 'sounds' не найдена или это не папка")
+        }
+
+        val files = soundsFolder.list()
+
+        for (file in files) {
+            if (file.extension().equals("mp3", ignoreCase = true)) {
+                audioNames.add(file.name())
+            }
+        }
+        audioNames.sort()
     }
 
     fun find_triggers_zone() {
@@ -552,10 +584,12 @@ class Triggers(var scene: Scene?): AnimationController.AnimationListener {
             val name = nodesMap["name"] as? String ?: return@forEach
             if (name.startsWith("zone_", ignoreCase = false)) {
                 trigger_zones.add(name)
+            } else if (name.startsWith("audio_zone_", ignoreCase = false)) {
+                audio_trigger_zones.add(name)
             }
         }
         trigger_zones.sort()
-        Gdx.app.log("trigger_zones", "$trigger_zones")
+        audio_trigger_zones.sort()
     }
 
     fun create_bounding_boxes() {
@@ -567,22 +601,42 @@ class Triggers(var scene: Scene?): AnimationController.AnimationListener {
                 zoneBoundsList.add(bounds)
             }
         }
-        Gdx.app.log("zoneBoundsList", "$zoneBoundsList")
+
+        for (audioZoneName in audio_trigger_zones) {
+            val zoneNode = scene!!.modelInstance.getNode(audioZoneName)
+            if (zoneNode != null) {
+                val bounds = BoundingBox()
+                zoneNode.calculateBoundingBox(bounds)
+                audioBoundsList.add(bounds)
+            }
+        }
     }
 
     fun check_and_start_animations(cameraPos: Vector3) {
         for (i in 0 until zoneBoundsList.size) {
             if (zoneBoundsList[i].contains(cameraPos)) {
                 scene!!.animationController.action(animationNames[i], 1, 1f, this, 0f)
+            }
+        }
 
+        for (i in 0 until audioBoundsList.size) {
+            if (audioBoundsList[i].contains(cameraPos)) {
+                playAudio(audioNames[i])
             }
         }
     }
+
+    private fun playAudio(key: String) {
+        val sound = soundMap[key] ?: return
+        sound.play(1f) // Громкость 100%
+    }
+
+
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
-        // Вызывается, когда анимация закончилась
+        // Анимация закончилась
     }
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
-        // Вызывается, когда циклическая анимация повторяется
+        // Циклическая анимация повторяется
     }
 }
