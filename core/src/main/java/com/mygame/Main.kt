@@ -680,12 +680,7 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
 
     private fun traverseSceneGraph(parentTransform: Matrix4, nodes: Iterable<Node>) {
         for (node in nodes) {
-            if (node.id.startsWith("anim_zone_", ignoreCase = false)) {
-                continue
-            }
-            if (node.id.startsWith("audio_zone_", ignoreCase = false)) {
-                continue
-            }
+            if (node.id.startsWith("anim_zone_") || node.id.startsWith("audio_zone_")) continue
             val worldTransform = Matrix4()
             worldTransform.set(parentTransform).mul(node.localTransform)
 
