@@ -270,24 +270,29 @@ class CameraController(var speed_move_camera: Float, var speed_rotation_camera: 
         AppContext.camera.update()
     }
 
-    fun rotate_camera(direction: String, angle_delta:Float = speed_rotation_camera) {
+    fun rotate_camera(direction: String, angle_delta: Float = speed_rotation_camera) {
         val localX: Vector3
         val quatX: Quaternion
         val quatY: Quaternion
-        if (direction == RotationDirections.UP.value) {
-            localX = Vector3(AppContext.camera.direction).crs(AppContext.camera.up).nor()
-            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * angle_delta)
-            AppContext.camera.rotate(quatX)
-        } else if (direction == RotationDirections.DOWN.value) {
-            localX = Vector3(AppContext.camera.direction).crs(AppContext.camera.up).nor()
-            quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -angle_delta)
-            AppContext.camera.rotate(quatX)
-        } else if (direction == RotationDirections.LEFT.value) {
-            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * angle_delta)
-            AppContext.camera.rotate(quatY)
-        } else if (direction == RotationDirections.RIGHT.value) {
-            quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -angle_delta)
-            AppContext.camera.rotate(quatY)
+        when (direction) {
+            RotationDirections.UP.value -> {
+                localX = Vector3(AppContext.camera.direction).crs(AppContext.camera.up).nor()
+                quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * angle_delta)
+                AppContext.camera.rotate(quatX)
+            }
+            RotationDirections.DOWN.value -> {
+                localX = Vector3(AppContext.camera.direction).crs(AppContext.camera.up).nor()
+                quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -angle_delta)
+                AppContext.camera.rotate(quatX)
+            }
+            RotationDirections.LEFT.value -> {
+                quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * angle_delta)
+                AppContext.camera.rotate(quatY)
+            }
+            RotationDirections.RIGHT.value -> {
+                quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -angle_delta)
+                AppContext.camera.rotate(quatY)
+            }
         }
         AppContext.camera.update()
     }
