@@ -154,7 +154,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
 
 
-        triggers = Triggers(scene)
+        triggers = Triggers(scene, collisionManager)
         triggers!!.parse_gltf()
         triggers!!.find_animations()
         triggers!!.find_and_load_audios()
@@ -540,7 +540,7 @@ class Threshold(var sensorProvider: SensorProvider) {
 }
 
 
-class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
+class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : AnimationController.AnimationListener {
     var map: HashMap<String, Any>? = null
     val animationNames = mutableListOf<String>()
     val audioNames = mutableListOf<String>()
@@ -649,6 +649,15 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
 
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
         // Анимация закончилась
+        Gdx.app.log("amin end", "${animation!!.animation.id}")
+        if (animation!!.animation.id == "anim_1") {
+            Gdx.app.log("objectBoundsMap del", "${collisionManager!!.objectBoundsMap.size}")
+            collisionManager!!.objectBoundsMap.remove("block_1")
+            collisionManager!!.objectBoundsMap.remove("Block_2")
+            Gdx.app.log("objectBoundsMap del", "${collisionManager!!.objectBoundsMap.size}")
+        }
+        collisionManager!!.loadColliders()
+        Gdx.app.log("objectBoundsMap upd", "${collisionManager!!.objectBoundsMap.size}")
     }
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
@@ -662,7 +671,7 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
 
 
 class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelInstance) {
-    private val objectBoundsList = mutableListOf<BoundingBox>()
+    val objectBoundsMap = mutableMapOf<String, BoundingBox>()
 
     fun loadColliders() {
         traverseSceneGraph(Matrix4(), modelInstance.nodes)
@@ -682,7 +691,7 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
             val bounds = BoundingBox()
             node.calculateBoundingBox(bounds)
 //            bounds.mul(worldTransform)
-            objectBoundsList.add(bounds)
+            objectBoundsMap[node.id] = bounds
             Gdx.app.log("node_name", "${node.id}")
             Gdx.app.log("node_box", "$bounds")
 
@@ -694,8 +703,9 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
 
     fun checkCollision(cameraPosition: Vector3, radius: Float = 0.25f): Boolean {
         val cameraBox = createCameraBounds(cameraPosition, radius)
-        for (objBounds in objectBoundsList) {
+        for ((key, objBounds) in objectBoundsMap) {
             if (cameraBox.intersects(objBounds)) {
+//                objectBoundsMap.remove(key)
                 return true
             }
         }
