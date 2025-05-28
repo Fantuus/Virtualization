@@ -240,9 +240,11 @@ class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Fl
         direction.y = 0f
         direction.nor()
         if (move_direction == MoveDirections.FORWARD.value) {
-            camera!!.position.add(direction.scl(distance_delta))
+            val distance_step_forward = direction.scl(distance_delta)
+            camera!!.position.add(distance_step_forward)
         } else if (move_direction == MoveDirections.BACKWARD.value) {
-            camera!!.position.add(direction.scl(-distance_delta))
+            val distance_step_backward = direction.scl(-distance_delta)
+            camera!!.position.add(distance_step_backward)
         }
         camera!!.update()
     }
