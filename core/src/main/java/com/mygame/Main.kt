@@ -33,8 +33,6 @@ import kotlin.math.abs
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.badlogic.gdx.audio.Sound //
-
-
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.graphics.g3d.model.Node
 /**
@@ -52,7 +50,6 @@ object AppContext {
     lateinit var triggers: Triggers
     lateinit var collisionManager: CollisionManager
 }
-
 
 
 class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
@@ -84,7 +81,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var isMoving_old = false
 
 
-
     override fun create() {
         val worldName = "worktable"
         val path_to_model = "models/$worldName/$worldName.gltf"
@@ -94,10 +90,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal(path_to_model))
         AppContext.scene = Scene(sceneAsset.scene)
-
-
-
-
 
 
         AppContext.collisionManager = CollisionManager(AppContext.scene.modelInstance)
@@ -110,7 +102,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         AppContext.camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         AppContext.camera.near = 0.1f // Минимальное расстояние, которое видит камера
         AppContext.camera.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
-        AppContext.camera.position.set(-0.2f, 1f, 0.5f)
+        AppContext.camera.position.set(-0.2f, 1.6f, 0.5f)
         AppContext.camera.update()
         sceneManager!!.setCamera(AppContext.camera)
         AppContext.cameraController = CameraController(speed_move_camera_by_button, speed_rotation_camera_by_button)
@@ -312,7 +304,6 @@ enum class MoveDirections(val value: String) {
     BACKWARD("BACKWARD"),
     STOP("STOP");
 }
-
 
 
 
@@ -692,9 +683,6 @@ class Triggers(val path_to_model: String, val path_to_sounds: String) : Animatio
 
 
 
-
-
-
 class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelInstance) {
     val objectBoundsMap = mutableMapOf<String, BoundingBox>()
 
@@ -726,8 +714,8 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
         }
     }
 
-    fun checkCollision(cameraPosition: Vector3, radius: Float = 0.25f): Boolean {
-        val cameraBox = createCameraBounds(cameraPosition, radius)
+    fun checkCollision(cameraPosition: Vector3): Boolean {
+        val cameraBox = createCameraBounds(cameraPosition)
         for ((key, objBounds) in objectBoundsMap) {
             if (cameraBox.intersects(objBounds)) {
 //                objectBoundsMap.remove(key)
@@ -737,9 +725,12 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
         return false
     }
 
-    private fun createCameraBounds(cameraPosition: Vector3, radius: Float): BoundingBox {
-        val min = Vector3(cameraPosition.x - radius, cameraPosition.y - radius, cameraPosition.z - radius)
-        val max = Vector3(cameraPosition.x + radius, cameraPosition.y + radius, cameraPosition.z + radius)
+    private fun createCameraBounds(cameraPosition: Vector3): BoundingBox {
+        val radiusAround = 0.1f
+        val heightAboveCamera = 0.1f
+        val heightUnderCamera = 1.4f
+        val min = Vector3(cameraPosition.x - radiusAround, cameraPosition.y - heightUnderCamera, cameraPosition.z - radiusAround)
+        val max = Vector3(cameraPosition.x + radiusAround, cameraPosition.y + heightAboveCamera, cameraPosition.z + radiusAround)
         return BoundingBox(min, max)
     }
 }
