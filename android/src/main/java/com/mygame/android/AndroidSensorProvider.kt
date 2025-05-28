@@ -7,11 +7,24 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
     private val sensorData = SensorDataProvider(context)
 
     override val rotationX: Float
-        get() = sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(sensorData.gyroXBuffer.average().toFloat(), ThresholdType.THRESHOLD_GYRO_XYZ)
+        get() {
+            val average = sensorData.gyroXBuffer
+                .filterNotNull()
+                .takeIf { it.isNotEmpty() }
+                ?.average()
+                ?.toFloat() ?: 0f
 
+            return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_GYRO_XYZ)
+        }
     override val rotationY: Float
-        get() = sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(sensorData.gyroYBuffer.average().toFloat(), ThresholdType.THRESHOLD_GYRO_XYZ)
-
+        get() {
+            val average = sensorData.gyroYBuffer
+                .filterNotNull()
+                .takeIf { it.isNotEmpty() }
+                ?.average()
+                ?.toFloat() ?: 0f
+            return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_GYRO_XYZ)
+        }
     override val isMoving: Boolean
         get() = sensorData.isMoving
 
@@ -26,8 +39,14 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
         get() = sensorData.isZMoving
 
     override val MovingZ: Float
-        get() = sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(sensorData.accelZBuffer.average().toFloat(), ThresholdType.THRESHOLD_ACCELERATION_AXIS)
-
+        get() {
+            val average = sensorData.accelZBuffer
+                .filterNotNull()
+                .takeIf { it.isNotEmpty() }
+                ?.average()
+                ?.toFloat() ?: 0f
+            return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_ACCELERATION_AXIS)
+        }
 
     override var threshold_gyroXYZ: Float
         get() = sensorData.threshold_gyroXYZ.toFloat()
@@ -37,7 +56,14 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
 
 
     override val accelZBuffer: Float
-        get() = sensorData.accelZBuffer.average().toFloat()
+        get() {
+            val average = sensorData.accelZBuffer
+                .filterNotNull()
+                .takeIf { it.isNotEmpty() }
+                ?.average()
+                ?.toFloat() ?: 0f
+            return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_ACCELERATION_AXIS)
+        }
 
     override fun startSensors() = sensorData.startListening()
     override fun stopSensors() = sensorData.stopListening()

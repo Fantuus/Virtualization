@@ -102,7 +102,11 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         gyroZBuffer.addLast(event.values[2])
         if (gyroXBuffer.size > len_gyroXYZBuffer) {
             gyroXBuffer.removeFirst()
+        }
+        if (gyroYBuffer.size > len_gyroXYZBuffer) {
             gyroYBuffer.removeFirst()
+        }
+        if (gyroZBuffer.size > len_gyroXYZBuffer) {
             gyroZBuffer.removeFirst()
         }
         isXRotating = abs(gyroXBuffer.average()) > threshold_gyroXYZ
