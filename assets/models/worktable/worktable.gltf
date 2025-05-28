@@ -58,7 +58,7 @@
 		},
 		{
 			"mesh":2,
-			"name":"zone_anim_1",
+			"name":"anim_zone_cubes_move",
 			"scale":[
 				4.213571548461914,
 				4.213571548461914,
@@ -72,7 +72,7 @@
 		},
 		{
 			"mesh":3,
-			"name":"block_1",
+			"name":"cubes_move_1",
 			"translation":[
 				-3.3046488761901855,
 				0.5637693405151367,
@@ -81,7 +81,7 @@
 		},
 		{
 			"mesh":4,
-			"name":"Block_2",
+			"name":"cubes_move_2",
 			"translation":[
 				3.4097766876220703,
 				0.5637693405151367,
@@ -90,7 +90,7 @@
 		},
 		{
 			"mesh":5,
-			"name":"zone_anim_2",
+			"name":"anim_zone_spheres_move",
 			"scale":[
 				3.534334182739258,
 				4.303290843963623,
@@ -122,7 +122,7 @@
 		},
 		{
 			"mesh":8,
-			"name":"audio_zone_fear",
+			"name":"audio_zone_spheres_move_fear",
 			"scale":[
 				3.534334182739258,
 				4.303290843963623,
@@ -136,7 +136,7 @@
 		},
 		{
 			"mesh":9,
-			"name":"audio_zone_magic",
+			"name":"audio_zone_cubes_move_magic",
 			"scale":[
 				4.213571548461914,
 				4.213571548461914,
@@ -329,7 +329,7 @@
 					}
 				}
 			],
-			"name":"anim_1",
+			"name":"anim_cubes_move",
 			"samplers":[
 				{
 					"input":124,
@@ -408,7 +408,7 @@
 					}
 				}
 			],
-			"name":"anim_2",
+			"name":"sphere_move",
 			"samplers":[
 				{
 					"input":132,

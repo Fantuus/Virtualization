@@ -36,7 +36,6 @@ import com.badlogic.gdx.audio.Sound //
 
 
 import com.badlogic.gdx.math.Matrix4
-import com.badlogic.gdx.utils.Array as GdxArray
 import com.badlogic.gdx.graphics.g3d.model.Node
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
@@ -544,9 +543,9 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
     var map: HashMap<String, Any>? = null
     val animationNames = mutableListOf<String>()
     val audioNames = mutableListOf<String>()
-    val trigger_zones = mutableListOf<String>()
+    val anim_trigger_zones = mutableListOf<String>()
     val audio_trigger_zones = mutableListOf<String>()
-    private val zoneBoundsList = mutableListOf<BoundingBox>()
+    private val animBoundsList = mutableListOf<BoundingBox>()
     private val audioBoundsList = mutableListOf<BoundingBox>()
     private val animationsLaunched = mutableMapOf<String, Boolean>()
     private val audiosLaunched = mutableMapOf<String, Boolean>()
@@ -593,23 +592,23 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
         nodesJsonArray?.forEach { item ->
             val nodesMap = item as? Map<*, *> ?: return@forEach
             val name = nodesMap["name"] as? String ?: return@forEach
-            if (name.startsWith("zone_", ignoreCase = false)) {
-                trigger_zones.add(name)
+            if (name.startsWith("anim_zone_", ignoreCase = false)) {
+                anim_trigger_zones.add(name)
             } else if (name.startsWith("audio_zone_", ignoreCase = false)) {
                 audio_trigger_zones.add(name)
             }
         }
-        trigger_zones.sort()
+        anim_trigger_zones.sort()
         audio_trigger_zones.sort()
     }
 
     fun create_bounding_boxes() {
-        for (zoneName in trigger_zones) {
+        for (zoneName in anim_trigger_zones) {
             val zoneNode = scene!!.modelInstance.getNode(zoneName)
             if (zoneNode != null) {
                 val bounds = BoundingBox()
                 zoneNode.calculateBoundingBox(bounds)
-                zoneBoundsList.add(bounds)
+                animBoundsList.add(bounds)
             }
         }
 
@@ -624,8 +623,8 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
     }
 
     fun check_and_start_animations(cameraPos: Vector3) {
-        for (i in 0 until zoneBoundsList.size) {
-            if (zoneBoundsList[i].contains(cameraPos) && animationsLaunched[animationNames[i]] == false) {
+        for (i in 0 until animBoundsList.size) {
+            if (animBoundsList[i].contains(cameraPos) && animationsLaunched[animationNames[i]] == false) {
                 scene!!.animationController.action(animationNames[i], 1, 1f, this, 0f)
                 animationsLaunched[animationNames[i]] = true
             }
@@ -652,8 +651,8 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
         Gdx.app.log("amin end", "${animation!!.animation.id}")
         if (animation!!.animation.id == "anim_1") {
             Gdx.app.log("objectBoundsMap del", "${collisionManager!!.objectBoundsMap.size}")
-            collisionManager!!.objectBoundsMap.remove("block_1")
-            collisionManager!!.objectBoundsMap.remove("Block_2")
+            collisionManager!!.objectBoundsMap.remove("cubes_move_1")
+            collisionManager!!.objectBoundsMap.remove("cubes_move_2")
             Gdx.app.log("objectBoundsMap del", "${collisionManager!!.objectBoundsMap.size}")
         }
         collisionManager!!.loadColliders()
@@ -679,7 +678,7 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
 
     private fun traverseSceneGraph(parentTransform: Matrix4, nodes: Iterable<Node>) {
         for (node in nodes) {
-            if (node.id.startsWith("zone_", ignoreCase = false)) {
+            if (node.id.startsWith("anim_zone_", ignoreCase = false)) {
                 continue
             }
             if (node.id.startsWith("audio_zone_", ignoreCase = false)) {
