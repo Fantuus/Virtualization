@@ -167,6 +167,8 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         AppContext.triggers.find_and_load_audios()
         AppContext.triggers.find_triggers_zone()
         AppContext.triggers.create_bounding_boxes()
+        AppContext.triggers.createAnimBoundsMap()
+        AppContext.triggers.createAudioBoundsMap()
     }
 
 
@@ -554,7 +556,9 @@ class Triggers() : AnimationController.AnimationListener {
     val anim_trigger_zones = mutableListOf<String>()
     val audio_trigger_zones = mutableListOf<String>()
     private val animBoundsList = mutableListOf<BoundingBox>()
+    private val animBoundsMap = mutableMapOf<String, BoundingBox>()
     private val audioBoundsList = mutableListOf<BoundingBox>()
+    private val audioBoundsMap =  mutableMapOf<String, BoundingBox>()
     private val animationsLaunched = mutableMapOf<String, Boolean>()
     private val audiosLaunched = mutableMapOf<String, Boolean>()
 
@@ -630,20 +634,38 @@ class Triggers() : AnimationController.AnimationListener {
         }
     }
 
+    fun createAnimBoundsMap() {
+        if (animationNames.size != animBoundsList.size) {
+            Gdx.app.error("Triggers", "Размеры animationNames и animBoundsList не совпадают")
+        }
+        for (i in animationNames.indices) {
+            animBoundsMap[animationNames[i]] = animBoundsList[i]
+        }
+    }
+
+    fun createAudioBoundsMap() {
+        if (audioNames.size != audioBoundsList.size) {
+            Gdx.app.error("Triggers", "Размеры audioNames и audioBoundsList не совпадают")
+        }
+        for (i in audioNames.indices) {
+            audioBoundsMap[audioNames[i]] = audioBoundsList[i]
+        }
+    }
+
     fun check_and_start_animations(cameraPos: Vector3) {
-        for (i in 0 until animBoundsList.size) {
-            if (animBoundsList[i].contains(cameraPos) && animationsLaunched[animationNames[i]] == false) {
-                AppContext.scene.animationController.action(animationNames[i], 1, 1f, this, 0f)
-                animationsLaunched[animationNames[i]] = true
+        for ((animationName, animBound) in animBoundsMap) {
+            if (animBound.contains(cameraPos) && animationsLaunched[animationName] == false) {
+                AppContext.scene.animationController.action(animationName, 1, 1f, this, 0f)
+                animationsLaunched[animationName] = true
             }
         }
     }
 
     fun check_and_start_audios(cameraPos: Vector3) {
-        for (i in 0 until audioBoundsList.size) {
-            if (audioBoundsList[i].contains(cameraPos) && audiosLaunched[audioNames[i]] == false) {
-                playAudio(audioNames[i])
-                audiosLaunched[audioNames[i]] = true
+        for ((audioName, audioBound) in audioBoundsMap) {
+            if (audioBound.contains(cameraPos) && audiosLaunched[audioName] == false) {
+                playAudio(audioName)
+                audiosLaunched[audioName] = true
             }
         }
     }
