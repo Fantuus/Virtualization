@@ -134,7 +134,17 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
 
         // setup skybox
-        skybox = SceneSkybox(environmentCubemap)
+//        skybox = SceneSkybox(environmentCubemap)
+//        sceneManager!!.skyBox = skybox
+        val cubemap = Cubemap(
+            Gdx.files.internal("textures/environment/environment_posx.png"),
+            Gdx.files.internal("textures/environment/environment_negx.png"),
+            Gdx.files.internal("textures/environment/environment_posy.png"),
+            Gdx.files.internal("textures/environment/environment_negy.png"),
+            Gdx.files.internal("textures/environment/environment_posz.png"),
+            Gdx.files.internal("textures/environment/environment_negz.png")
+        )
+        skybox = SceneSkybox(cubemap)
         sceneManager!!.skyBox = skybox
 
 
