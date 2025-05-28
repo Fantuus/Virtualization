@@ -34,6 +34,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.badlogic.gdx.audio.Sound //
 
+
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.utils.Array as GdxArray
+import com.badlogic.gdx.graphics.g3d.model.Node
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
@@ -72,6 +76,8 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
     var triggers: Triggers? = null
 
+    var collisionManager: CollisionManager? = null
+
     override fun create() {
         stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = stage
@@ -84,7 +90,8 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
 
 
-
+        collisionManager = CollisionManager(scene!!.modelInstance)
+        collisionManager!!.loadColliders()
 
 
         sceneManager = SceneManager()
@@ -93,10 +100,10 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
         camera!!.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
-        camera!!.position.set(-0.2f, 1.6f, 0.5f)
+        camera!!.position.set(-0.2f, 1f, 0.5f)
         camera!!.update()
         sceneManager!!.setCamera(camera)
-        сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button)
+        сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button, collisionManager)
 
 //         setup light
         light = DirectionalLightEx()
@@ -233,12 +240,14 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
 }
 
-class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Float, var speed_rotation_camera: Float ) {
+class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Float, var speed_rotation_camera: Float, var collisionManager: CollisionManager?) {
 
     fun move_camera(move_direction: String, distance_delta: Float = speed_move_camera) {
         val direction = camera!!.direction.cpy().nor()
         direction.y = 0f
         direction.nor()
+        val old_pos = camera!!.position.cpy()
+        Gdx.app.log("old_pos 1", "${old_pos}")
         if (move_direction == MoveDirections.FORWARD.value) {
             val distance_step_forward = direction.scl(distance_delta)
             camera!!.position.add(distance_step_forward)
@@ -246,6 +255,12 @@ class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Fl
             val distance_step_backward = direction.scl(-distance_delta)
             camera!!.position.add(distance_step_backward)
         }
+        Gdx.app.log("camera pos", "${camera!!.position}")
+        Gdx.app.log("collision", "${collisionManager!!.checkCollision(camera!!.position)}")
+        if (collisionManager!!.checkCollision(camera!!.position)) {
+            camera!!.position.set(old_pos)
+        }
+        Gdx.app.log("old_pos 2", "${old_pos}")
         camera!!.update()
     }
 
@@ -638,5 +653,52 @@ class Triggers(var scene: Scene?) : AnimationController.AnimationListener {
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
         // Циклическая анимация повторяется
+    }
+}
+
+
+
+
+
+
+class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelInstance) {
+    private val objectBoundsList = mutableListOf<BoundingBox>()
+
+    fun loadColliders() {
+        traverseSceneGraph(Matrix4(), modelInstance.nodes)
+    }
+
+    private fun traverseSceneGraph(parentTransform: Matrix4, nodes: Iterable<Node>) {
+        for (node in nodes) {
+            val worldTransform = Matrix4()
+            worldTransform.set(parentTransform).mul(node.localTransform)
+
+            val bounds = BoundingBox()
+            node.calculateBoundingBox(bounds)
+//            bounds.mul(worldTransform)
+            objectBoundsList.add(bounds)
+            Gdx.app.log("node_name", "${node.id}")
+            Gdx.app.log("node_box", "$bounds")
+
+            if (node.children.iterator().hasNext()) {
+                traverseSceneGraph(worldTransform, node.children)
+            }
+        }
+    }
+
+    fun checkCollision(cameraPosition: Vector3, radius: Float = 0.25f): Boolean {
+        val cameraBox = createCameraBounds(cameraPosition, radius)
+        for (objBounds in objectBoundsList) {
+            if (cameraBox.intersects(objBounds)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun createCameraBounds(cameraPosition: Vector3, radius: Float): BoundingBox {
+        val min = Vector3(cameraPosition.x - radius, cameraPosition.y - radius, cameraPosition.z - radius)
+        val max = Vector3(cameraPosition.x + radius, cameraPosition.y + radius, cameraPosition.z + radius)
+        return BoundingBox(min, max)
     }
 }
