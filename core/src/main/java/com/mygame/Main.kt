@@ -648,15 +648,7 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
 
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
         // Анимация закончилась
-        Gdx.app.log("amin end", "${animation!!.animation.id}")
-        if (animation!!.animation.id == "anim_1") {
-            Gdx.app.log("objectBoundsMap del", "${collisionManager!!.objectBoundsMap.size}")
-            collisionManager!!.objectBoundsMap.remove("cubes_move_1")
-            collisionManager!!.objectBoundsMap.remove("cubes_move_2")
-            Gdx.app.log("objectBoundsMap del", "${collisionManager!!.objectBoundsMap.size}")
-        }
         collisionManager!!.loadColliders()
-        Gdx.app.log("objectBoundsMap upd", "${collisionManager!!.objectBoundsMap.size}")
     }
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
