@@ -239,6 +239,9 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         specularCubemap!!.dispose()
         brdfLUT!!.dispose()
         skybox!!.dispose()
+        button_creator?.dispose()
+        AppContext.triggers.dispose()
+        AppContext.stage.dispose()
     }
 
 }
@@ -530,6 +533,9 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         })
         AppContext.stage.addActor(button_rotate_up)
     }
+    override fun dispose() {
+        mySkin.dispose()
+    }
 }
 
 
@@ -666,6 +672,12 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
         // Циклическая анимация повторяется
+    }
+
+    fun dispose() {
+        for (sound in soundMap.values) {
+            sound.dispose()
+        }
     }
 }
 
