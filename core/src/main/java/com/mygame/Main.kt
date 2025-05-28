@@ -41,12 +41,23 @@ import com.badlogic.gdx.graphics.g3d.model.Node
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
  */
+
+
+
+object AppContext {
+    lateinit var stage: Stage
+    lateinit var scene: Scene
+    lateinit var camera: PerspectiveCamera
+    lateinit var cameraController: CameraController
+    lateinit var triggers: Triggers
+    lateinit var collisionManager: CollisionManager
+}
+
+
+
 class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var sceneManager: SceneManager? = null
     private var sceneAsset: SceneAsset? = null
-    private var scene: Scene? = null
-    private var camera: PerspectiveCamera? = null
-    private var сamera_сontroller: CameraController? = null
     private var diffuseCubemap: Cubemap? = null
     private var environmentCubemap: Cubemap? = null
     private var specularCubemap: Cubemap? = null
@@ -54,7 +65,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var time = 0f
     private var skybox: SceneSkybox? = null
     private var light: DirectionalLightEx? = null
-    private var stage: Stage? = null
 
 
     var threshold: Threshold? = null
@@ -73,36 +83,34 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
     private var real_move_direction = MoveDirections.STOP.value
     private var isMoving_old = false
 
-    var triggers: Triggers? = null
 
-    var collisionManager: CollisionManager? = null
 
     override fun create() {
-        stage = Stage(ScreenViewport())
-        Gdx.input.inputProcessor = stage
+        AppContext.stage = Stage(ScreenViewport())
+        Gdx.input.inputProcessor = AppContext.stage
         // create scene
         val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
-        scene = Scene(sceneAsset.scene)
+        AppContext.scene = Scene(sceneAsset.scene)
 
 
 
 
 
 
-        collisionManager = CollisionManager(scene!!.modelInstance)
-        collisionManager!!.loadColliders()
+        AppContext.collisionManager = CollisionManager(AppContext.scene.modelInstance)
+        AppContext.collisionManager.loadColliders()
 
 
         sceneManager = SceneManager()
-        sceneManager!!.addScene(scene)
+        sceneManager!!.addScene(AppContext.scene)
         // setup camera (The BoomBox model is very small so you may need to adapt camera settings for your scene)
-        camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-        camera!!.near = 0.1f // Минимальное расстояние, которое видит камера
-        camera!!.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
-        camera!!.position.set(-0.2f, 1f, 0.5f)
-        camera!!.update()
-        sceneManager!!.setCamera(camera)
-        сamera_сontroller = CameraController(camera, speed_move_camera_by_button, speed_rotation_camera_by_button, collisionManager)
+        AppContext.camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        AppContext.camera.near = 0.1f // Минимальное расстояние, которое видит камера
+        AppContext.camera.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
+        AppContext.camera.position.set(-0.2f, 1f, 0.5f)
+        AppContext.camera.update()
+        sceneManager!!.setCamera(AppContext.camera)
+        AppContext.cameraController = CameraController(speed_move_camera_by_button, speed_rotation_camera_by_button)
 
 //         setup light
         light = DirectionalLightEx()
@@ -138,7 +146,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         threshold= Threshold(sensorProvider)
         sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
 
-        button_creator = ButtonCreator(сamera_сontroller, stage, sensitivity, scene!!)
+        button_creator = ButtonCreator(sensitivity)
         button_creator!!.create_label()
         button_creator!!.create_button_rotation_up()
         button_creator!!.create_button_rotation_right()
@@ -153,12 +161,12 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
 
 
-        triggers = Triggers(scene, collisionManager)
-        triggers!!.parse_gltf()
-        triggers!!.find_animations()
-        triggers!!.find_and_load_audios()
-        triggers!!.find_triggers_zone()
-        triggers!!.create_bounding_boxes()
+        AppContext.triggers = Triggers()
+        AppContext.triggers.parse_gltf()
+        AppContext.triggers.find_animations()
+        AppContext.triggers.find_and_load_audios()
+        AppContext.triggers.find_triggers_zone()
+        AppContext.triggers.create_bounding_boxes()
     }
 
 
@@ -170,8 +178,8 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         val deltaTime = Gdx.graphics.deltaTime
         time += deltaTime
 
-        camera!!.up.set(Vector3.Y)
-        camera!!.update()
+        AppContext.camera.up.set(Vector3.Y)
+        AppContext.camera.update()
 
         // render
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
@@ -179,25 +187,25 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         sceneManager!!.render()
 
 
-        triggers!!.check_and_start_animations(camera!!.position)
-        triggers!!.check_and_start_audios(camera!!.position)
+        AppContext.triggers.check_and_start_animations(AppContext.camera.position)
+        AppContext.triggers.check_and_start_audios(AppContext.camera.position)
 
         if (sensorProvider.isXRotating) {
             if (sensorProvider.rotationX > 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value, sensorProvider.rotationX)
+                AppContext.cameraController.rotate_camera(RotationDirections.LEFT.value, sensorProvider.rotationX)
             }
             else if (sensorProvider.rotationX < 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value, abs(sensorProvider.rotationX))
+                AppContext.cameraController.rotate_camera(RotationDirections.RIGHT.value, abs(sensorProvider.rotationX))
             }
             button_creator!!.print_to_label(sensorProvider.rotationX.toString())
         }
 
         if (sensorProvider.isYRotating) {
             if (sensorProvider.rotationY > 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value, sensorProvider.rotationY)
+                AppContext.cameraController.rotate_camera(RotationDirections.DOWN.value, sensorProvider.rotationY)
             }
             else if (sensorProvider.rotationY < 0f) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
+                AppContext.cameraController.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
             }
         }
 
@@ -215,16 +223,16 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
         if (sensorProvider.isMoving) {
             if (real_move_direction == MoveDirections.FORWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value, sensorProvider.MovingZ)
+                AppContext.cameraController.move_camera(MoveDirections.FORWARD.value, sensorProvider.MovingZ)
             }
             else if (real_move_direction == MoveDirections.BACKWARD.value) {
-                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
+                AppContext.cameraController.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
             }
         }
         button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
 
-        stage!!.act()
-        stage!!.draw()
+        AppContext.stage.act()
+        AppContext.stage.draw()
     }
 
     override fun dispose() {
@@ -239,28 +247,28 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
 }
 
-class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Float, var speed_rotation_camera: Float, var collisionManager: CollisionManager?) {
+class CameraController(var speed_move_camera: Float, var speed_rotation_camera: Float) {
 
     fun move_camera(move_direction: String, distance_delta: Float = speed_move_camera) {
-        val direction = camera!!.direction.cpy().nor()
+        val direction = AppContext.camera.direction.cpy().nor()
         direction.y = 0f
         direction.nor()
-        val old_pos = camera!!.position.cpy()
+        val old_pos = AppContext.camera.position.cpy()
         Gdx.app.log("old_pos 1", "${old_pos}")
         if (move_direction == MoveDirections.FORWARD.value) {
             val distance_step_forward = direction.scl(distance_delta)
-            camera!!.position.add(distance_step_forward)
+            AppContext.camera.position.add(distance_step_forward)
         } else if (move_direction == MoveDirections.BACKWARD.value) {
             val distance_step_backward = direction.scl(-distance_delta)
-            camera!!.position.add(distance_step_backward)
+            AppContext.camera.position.add(distance_step_backward)
         }
-        Gdx.app.log("camera pos", "${camera!!.position}")
-        Gdx.app.log("collision", "${collisionManager!!.checkCollision(camera!!.position)}")
-        if (collisionManager!!.checkCollision(camera!!.position)) {
-            camera!!.position.set(old_pos)
+        Gdx.app.log("camera pos", "${AppContext.camera.position}")
+        Gdx.app.log("collision", "${AppContext.collisionManager.checkCollision(AppContext.camera.position)}")
+        if (AppContext.collisionManager.checkCollision(AppContext.camera.position)) {
+            AppContext.camera.position.set(old_pos)
         }
         Gdx.app.log("old_pos 2", "${old_pos}")
-        camera!!.update()
+        AppContext.camera.update()
     }
 
     fun rotate_camera(direction: String, angle_delta:Float = speed_rotation_camera) {
@@ -268,21 +276,21 @@ class CameraController(var camera: PerspectiveCamera?, var speed_move_camera: Fl
         val quatX: Quaternion
         val quatY: Quaternion
         if (direction == RotationDirections.UP.value) {
-            localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
+            localX = Vector3(AppContext.camera.direction).crs(AppContext.camera.up).nor()
             quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * angle_delta)
-            camera!!.rotate(quatX)
+            AppContext.camera.rotate(quatX)
         } else if (direction == RotationDirections.DOWN.value) {
-            localX = Vector3(camera!!.direction).crs(camera!!.up).nor()
+            localX = Vector3(AppContext.camera.direction).crs(AppContext.camera.up).nor()
             quatX = Quaternion().setFromAxisRad(localX, MathUtils.degreesToRadians * -angle_delta)
-            camera!!.rotate(quatX)
+            AppContext.camera.rotate(quatX)
         } else if (direction == RotationDirections.LEFT.value) {
             quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * angle_delta)
-            camera!!.rotate(quatY)
+            AppContext.camera.rotate(quatY)
         } else if (direction == RotationDirections.RIGHT.value) {
             quatY = Quaternion().setFromAxisRad(Vector3.Y, MathUtils.degreesToRadians * -angle_delta)
-            camera!!.rotate(quatY)
+            AppContext.camera.rotate(quatY)
         }
-        camera!!.update()
+        AppContext.camera.update()
     }
 }
 
@@ -303,7 +311,7 @@ enum class MoveDirections(val value: String) {
 
 
 
-class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage?, val sensitivity: Sensitivity?, var scene: Scene): ApplicationAdapter(),
+class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     AnimationController.AnimationListener  {
     val row_height = Gdx.graphics.width / 12
     val col_width = Gdx.graphics.width / 12
@@ -322,7 +330,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
         outputLabel!!.setPosition(0f, row_height.toFloat()*4)
         outputLabel!!.setFontScale(2f)
-        stage!!.addActor(outputLabel)
+        AppContext.stage.addActor(outputLabel)
     }
 
     fun print_to_label(text: String) {
@@ -338,7 +346,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_rotate_up.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.UP.value)
+                AppContext.cameraController.rotate_camera(RotationDirections.UP.value)
                 print_to_label("Press rotate_up")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -346,7 +354,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_up)
+        AppContext.stage.addActor(button_rotate_up)
     }
 
 
@@ -359,7 +367,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_rotate_right.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.RIGHT.value)
+                AppContext.cameraController.rotate_camera(RotationDirections.RIGHT.value)
                 print_to_label("Press rotate_right")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -367,7 +375,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_right)
+        AppContext.stage.addActor(button_rotate_right)
     }
 
 
@@ -380,7 +388,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_rotate_down.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.DOWN.value)
+                AppContext.cameraController.rotate_camera(RotationDirections.DOWN.value)
                 print_to_label("Press rotate_down")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -388,7 +396,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_down)
+        AppContext.stage.addActor(button_rotate_down)
 
     }
 
@@ -402,7 +410,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_rotate_left.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                сamera_сontroller!!.rotate_camera(RotationDirections.LEFT.value)
+                AppContext.cameraController.rotate_camera(RotationDirections.LEFT.value)
                 print_to_label("Press rotate_left")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -410,7 +418,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_left)
+        AppContext.stage.addActor(button_rotate_left)
     }
 
 
@@ -423,7 +431,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_move_foward.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                сamera_сontroller!!.move_camera(MoveDirections.FORWARD.value)
+                AppContext.cameraController.move_camera(MoveDirections.FORWARD.value)
                 print_to_label("Press move_foward")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -431,7 +439,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_move_foward)
+        AppContext.stage.addActor(button_move_foward)
     }
 
     fun create_button_move_backward() {
@@ -443,7 +451,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
         )
         button_move_backward.addListener(object : InputListener() {
             override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) {
-                сamera_сontroller!!.move_camera(MoveDirections.BACKWARD.value)
+                AppContext.cameraController.move_camera(MoveDirections.BACKWARD.value)
                 print_to_label("Press move_backward")
             }
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
@@ -451,7 +459,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_move_backward)
+        AppContext.stage.addActor(button_move_backward)
     }
 
 
@@ -472,7 +480,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_up)
+        AppContext.stage.addActor(button_rotate_up)
     }
 
     fun create_button_threshholt_gyro_plus() {
@@ -490,7 +498,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_up)
+        AppContext.stage.addActor(button_rotate_up)
     }
 
     fun create_button_speed_rotation_camera_by_sensor_minus() {
@@ -507,7 +515,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_up)
+        AppContext.stage.addActor(button_rotate_up)
     }
 
     fun create_button_speed_rotation_camera_by_sensor_plus() {
@@ -524,7 +532,7 @@ class ButtonCreator(val сamera_сontroller: CameraController?, val stage: Stage
                 return true
             }
         })
-        stage!!.addActor(button_rotate_up)
+        AppContext.stage.addActor(button_rotate_up)
     }
 }
 
@@ -539,7 +547,7 @@ class Threshold(var sensorProvider: SensorProvider) {
 }
 
 
-class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : AnimationController.AnimationListener {
+class Triggers() : AnimationController.AnimationListener {
     var map: HashMap<String, Any>? = null
     val animationNames = mutableListOf<String>()
     val audioNames = mutableListOf<String>()
@@ -604,7 +612,7 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
 
     fun create_bounding_boxes() {
         for (zoneName in anim_trigger_zones) {
-            val zoneNode = scene!!.modelInstance.getNode(zoneName)
+            val zoneNode = AppContext.scene.modelInstance.getNode(zoneName)
             if (zoneNode != null) {
                 val bounds = BoundingBox()
                 zoneNode.calculateBoundingBox(bounds)
@@ -613,7 +621,7 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
         }
 
         for (audioZoneName in audio_trigger_zones) {
-            val zoneNode = scene!!.modelInstance.getNode(audioZoneName)
+            val zoneNode = AppContext.scene.modelInstance.getNode(audioZoneName)
             if (zoneNode != null) {
                 val bounds = BoundingBox()
                 zoneNode.calculateBoundingBox(bounds)
@@ -625,7 +633,7 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
     fun check_and_start_animations(cameraPos: Vector3) {
         for (i in 0 until animBoundsList.size) {
             if (animBoundsList[i].contains(cameraPos) && animationsLaunched[animationNames[i]] == false) {
-                scene!!.animationController.action(animationNames[i], 1, 1f, this, 0f)
+                AppContext.scene.animationController.action(animationNames[i], 1, 1f, this, 0f)
                 animationsLaunched[animationNames[i]] = true
             }
         }
@@ -648,7 +656,7 @@ class Triggers(var scene: Scene?, var collisionManager: CollisionManager?) : Ani
 
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
         // Анимация закончилась
-        collisionManager!!.loadColliders()
+        AppContext.collisionManager.loadColliders()
     }
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
