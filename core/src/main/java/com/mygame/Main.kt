@@ -86,10 +86,13 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
 
     override fun create() {
+        val worldName = "worktable"
+        val path_to_model = "models/$worldName/$worldName.gltf"
+        val path_to_sounds = "sounds/$worldName/"
         AppContext.stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = AppContext.stage
         // create scene
-        val sceneAsset = GLTFLoader().load(Gdx.files.internal("models/worktable/worktable.gltf"))
+        val sceneAsset = GLTFLoader().load(Gdx.files.internal(path_to_model))
         AppContext.scene = Scene(sceneAsset.scene)
 
 
@@ -161,7 +164,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
 
 
-        AppContext.triggers = Triggers()
+        AppContext.triggers = Triggers(path_to_model, path_to_sounds)
         AppContext.triggers.parse_gltf()
         AppContext.triggers.find_animations()
         AppContext.triggers.find_and_load_audios()
@@ -317,7 +320,8 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     AnimationController.AnimationListener  {
     val row_height = Gdx.graphics.width / 12
     val col_width = Gdx.graphics.width / 12
-    val mySkin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
+    val path_to_button_skin = "skin/glassy-ui.json"
+    val mySkin = Skin(Gdx.files.internal(path_to_button_skin))
     private var outputLabel: Label? = null
 
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
@@ -549,7 +553,7 @@ class Threshold(var sensorProvider: SensorProvider) {
 }
 
 
-class Triggers() : AnimationController.AnimationListener {
+class Triggers(val path_to_model: String, val path_to_sounds: String) : AnimationController.AnimationListener {
     var map: HashMap<String, Any>? = null
     val animationNames = mutableListOf<String>()
     val audioNames = mutableListOf<String>()
@@ -566,7 +570,7 @@ class Triggers() : AnimationController.AnimationListener {
     private val soundMap = mutableMapOf<String, Sound>()
 
     fun parse_gltf() {
-        val fileHandle = Gdx.files.internal("models/worktable/worktable.gltf")
+        val fileHandle = Gdx.files.internal(path_to_model)
         val jsonString = fileHandle.readString()
         val gson = Gson()
         map = gson.fromJson(jsonString, object : TypeToken<HashMap<String, Any>>() {}.type) as HashMap<String, Any>?
@@ -584,16 +588,16 @@ class Triggers() : AnimationController.AnimationListener {
     }
 
     fun find_and_load_audios() {
-        val soundsFolder = Gdx.files.internal("sounds") // Путь к папке assets/sounds
+        val soundsFolder = Gdx.files.internal(path_to_sounds) // Путь к папке assets/sounds
         if (!soundsFolder.exists() || !soundsFolder.isDirectory) {
-            Gdx.app.error("Sounds", "Папка 'sounds' не найдена или это не папка")
+            Gdx.app.error("Sounds", "Папка '$path_to_sounds' не найдена или это не папка")
         }
         val files = soundsFolder.list()
         for (file in files) {
             if (file.extension().equals("mp3", ignoreCase = true)) {
                 audioNames.add(file.name())
                 audiosLaunched[file.name()] = false
-                soundMap[file.name()] = Gdx.audio.newSound(Gdx.files.internal("sounds/${file.name()}"))
+                soundMap[file.name()] = Gdx.audio.newSound(Gdx.files.internal("$path_to_sounds/${file.name()}"))
             }
         }
         audioNames.sort()
