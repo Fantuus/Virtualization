@@ -156,8 +156,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
 
 
-        AppContext.triggers = Triggers(path_to_model, path_to_sounds)
-        AppContext.triggers.parse_gltf()
+        AppContext.triggers = Triggers(path_to_sounds)
         AppContext.triggers.find_animations()
         AppContext.triggers.find_and_load_audios()
         AppContext.triggers.find_triggers_zone()
@@ -226,7 +225,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
                 AppContext.cameraController.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
             }
         }
-        button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
+//        button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
 
         AppContext.stage.act()
         AppContext.stage.draw()
@@ -544,8 +543,7 @@ class Threshold(var sensorProvider: SensorProvider) {
 }
 
 
-class Triggers(val path_to_model: String, val path_to_sounds: String) : AnimationController.AnimationListener {
-    var map: HashMap<String, Any>? = null
+class Triggers(val path_to_sounds: String) : AnimationController.AnimationListener {
     val animationNames = mutableListOf<String>()
     val audioNames = mutableListOf<String>()
     val anim_trigger_zones = mutableListOf<String>()
@@ -560,20 +558,12 @@ class Triggers(val path_to_model: String, val path_to_sounds: String) : Animatio
     // Словарь для хранения звуков
     private val soundMap = mutableMapOf<String, Sound>()
 
-    fun parse_gltf() {
-        val fileHandle = Gdx.files.internal(path_to_model)
-        val jsonString = fileHandle.readString()
-        val gson = Gson()
-        map = gson.fromJson(jsonString, object : TypeToken<HashMap<String, Any>>() {}.type) as HashMap<String, Any>?
-    }
-
     fun find_animations() {
-        val animationsJsonArray = map?.get("animations") as? List<*>
-        animationsJsonArray?.forEach { item ->
-            val animationMap = item as? Map<*, *> ?: return@forEach
-            val name = animationMap["name"] as? String ?: return@forEach
-            animationNames.add(name)
-            animationsLaunched[name] = false
+        val animations = AppContext.scene.modelInstance.animations
+        for (animation in animations) {
+            val animationName = animation.id
+            animationNames.add(animationName)
+            animationsLaunched[animationName] = false
         }
         animationNames.sort()
     }
@@ -595,14 +585,12 @@ class Triggers(val path_to_model: String, val path_to_sounds: String) : Animatio
     }
 
     fun find_triggers_zone() {
-        val nodesJsonArray = map?.get("nodes") as? List<*>
-        nodesJsonArray?.forEach { item ->
-            val nodesMap = item as? Map<*, *> ?: return@forEach
-            val name = nodesMap["name"] as? String ?: return@forEach
-            if (name.startsWith("anim_zone_", ignoreCase = false)) {
-                anim_trigger_zones.add(name)
-            } else if (name.startsWith("audio_zone_", ignoreCase = false)) {
-                audio_trigger_zones.add(name)
+        val nodes = AppContext.scene.modelInstance.nodes
+        for (node in nodes) {
+            if (node.id.startsWith("anim_zone_", ignoreCase = false)) {
+                anim_trigger_zones.add(node.id)
+            } else if (node.id.startsWith("audio_zone_", ignoreCase = false)) {
+                audio_trigger_zones.add(node.id)
             }
         }
         anim_trigger_zones.sort()
