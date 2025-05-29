@@ -89,14 +89,14 @@ class StartMenuUiCreator(val game: MyGame) {
     }
 
     fun getWorldData(): List<WorldData> {
-        val worldList = listOf(
-            WorldData("Worktable", "textures/environment/environment_posx.png"),
-            WorldData("Worktable", "textures/environment/environment_posx.png"),
-            WorldData("Worktable", "textures/environment/environment_posx.png"),
-            WorldData("Worktable", "textures/environment/environment_posx.png"),
-            WorldData("Worktable", "textures/environment/environment_posx.png"),
-            WorldData("Worktable", "textures/environment/environment_posx.png")
-        )
+        val worldList = mutableListOf<WorldData>()
+        val soundsFolder = Gdx.files.internal("models") // Путь к папке assets/sounds
+        val folders = soundsFolder.list()
+        for (folder in folders) {
+            val worldName = folder.name()
+            val worldImagePath = "models/$worldName/$worldName.jpg"
+            worldList.add(WorldData(worldName, worldImagePath))
+        }
         return worldList
     }
 
