@@ -3,8 +3,8 @@ package com.mygame
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.Gdx
 
-class GameScreen(private val sensorProvider: SensorProvider) : Screen {
-    private val main = Main(sensorProvider)
+class GameScreen(private val sensorProvider: SensorProvider, worldName: String) : Screen {
+    private val main = Main(sensorProvider, worldName)
 
     init {
         main.create()

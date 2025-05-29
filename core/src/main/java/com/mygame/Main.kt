@@ -52,7 +52,7 @@ object AppContext {
 }
 
 
-class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
+class Main(private val sensorProvider: SensorProvider, val worldName: String) : ApplicationAdapter() {
     private var sceneManager: SceneManager? = null
     private var sceneAsset: SceneAsset? = null
     private var diffuseCubemap: Cubemap? = null
@@ -82,7 +82,6 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
 
     override fun create() {
-        val worldName = "worktable"
         val path_to_model = "models/$worldName/gltf/$worldName.gltf"
         val path_to_sounds = "sounds/$worldName/"
         AppContext.stage = Stage(ScreenViewport())
