@@ -80,6 +80,10 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
     private var real_move_direction = MoveDirections.STOP.value
     private var isMoving_old = false
 
+    private var lastInputTime = 0f
+    private var timeToHideButtons = 5f
+    private var showUI = false
+
 
     override fun create() {
         val path_to_model = "models/$worldName/gltf/$worldName.gltf"
@@ -172,6 +176,9 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         AppContext.triggers.create_bounding_boxes()
         AppContext.triggers.createAnimBoundsMap()
         AppContext.triggers.createAudioBoundsMap()
+
+        button_creator!!.hide_buttons()
+        showUI = false
     }
 
 
@@ -182,6 +189,19 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
     override fun render() {
         val deltaTime = Gdx.graphics.deltaTime
         time += deltaTime
+
+        if (Gdx.input.isTouched) {
+            lastInputTime = time
+            if (!showUI) {
+                button_creator!!.show_buttons()
+                showUI = true
+            }
+        }
+
+        if (showUI && time - lastInputTime > timeToHideButtons) {
+            button_creator!!.hide_buttons()
+            showUI = false
+        }
 
         AppContext.camera.up.set(Vector3.Y)
         AppContext.camera.update()
@@ -547,6 +567,20 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         })
         AppContext.stage.addActor(button_rotate_up)
     }
+
+
+    fun show_buttons() {
+        AppContext.stage.root.children.forEach { actor ->
+            actor.isVisible = true
+        }
+    }
+
+    fun hide_buttons() {
+        AppContext.stage.root.children.forEach { actor ->
+            actor.isVisible = false
+        }
+    }
+
     override fun dispose() {
         mySkin.dispose()
     }
