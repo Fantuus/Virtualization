@@ -83,7 +83,7 @@ class Main(private val sensorProvider: SensorProvider) : ApplicationAdapter() {
 
     override fun create() {
         val worldName = "worktable"
-        val path_to_model = "models/$worldName/$worldName.gltf"
+        val path_to_model = "models/$worldName/gltf/$worldName.gltf"
         val path_to_sounds = "sounds/$worldName/"
         AppContext.stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = AppContext.stage

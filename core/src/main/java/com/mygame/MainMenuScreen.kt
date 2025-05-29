@@ -56,8 +56,8 @@ class StartMenuUiCreator(val game: MyGame) {
     val marginBetweenElement = marginFromEdge / 2f
     val scrollTableWidth = Gdx.graphics.width / 2.2f
     val scrollTableHeight = Gdx.graphics.height / 1.7f
-    val imageWidth = scrollTableWidth / 1.3f
-    val imageHeight = scrollTableHeight / 1.3f
+    val imageWidth = scrollTableWidth / 1.4f
+    val imageHeight = scrollTableHeight / 1.4f
     val skin = Skin(Gdx.files.internal("skin/glassy-ui.json"))
 
 
