@@ -582,9 +582,8 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         val region = TextureRegion(texture)
         val drawable = TextureRegionDrawable(region)
         val image = Image(drawable)
-        image.setOrigin(Align.center)
 
-        val buttonWithImage = Button(mySkin)
+        val buttonWithImage = TextButton("", mySkin, "small")
         buttonWithImage.add(image)
         buttonWithImage.setPosition(
             (col_width * 11).toFloat(),
@@ -604,7 +603,13 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     }
 
     fun create_button_teleport_to_spawn() {
-        val buttonWithImage = Button(mySkin)
+        val texture = Texture(Gdx.files.internal("ui/menu/to_spawn.png"))
+        val region = TextureRegion(texture)
+        val drawable = TextureRegionDrawable(region)
+        val image = Image(drawable)
+
+        val buttonWithImage = TextButton("", mySkin, "small")
+        buttonWithImage.add(image)
         buttonWithImage.setPosition(
             (col_width * 10).toFloat(),
             (Gdx.graphics.height - row_height * 1).toFloat())
