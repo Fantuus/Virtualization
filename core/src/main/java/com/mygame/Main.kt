@@ -33,8 +33,14 @@ import kotlin.math.abs
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.badlogic.gdx.audio.Sound //
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.graphics.g3d.model.Node
+import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.badlogic.gdx.utils.Align
+
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
@@ -167,6 +173,8 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         button_creator!!.create_button_threshholt_gyro_plus()
         button_creator!!.create_button_speed_rotation_camera_by_sensor_minus()
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
+        button_creator!!.create_button_go_home()
+        button_creator!!.create_button_teleport_to_spawn()
 
 
         AppContext.triggers = Triggers(path_to_sounds)
@@ -508,7 +516,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         button_rotate_up.addListener(object : InputListener() {
             override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 val new_threshold_gyroXYZ = sensitivity!!.threshold!!.sensorProvider.threshold_gyroXYZ - 0.01f
-                sensitivity!!.threshold!!.change_threshold(new_threshold_gyroXYZ)
+                sensitivity.threshold!!.change_threshold(new_threshold_gyroXYZ)
                 print_to_label("threshold_gyroXYZ: ${sensitivity.threshold!!.sensorProvider.threshold_gyroXYZ}")
                 return true
             }
@@ -566,6 +574,51 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
             }
         })
         AppContext.stage.addActor(button_rotate_up)
+    }
+
+    fun create_button_go_home() {
+        val texture = Texture(Gdx.files.internal("ui/menu/home.png"))
+        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
+        val region = TextureRegion(texture)
+        val drawable = TextureRegionDrawable(region)
+        val image = Image(drawable)
+        image.setOrigin(Align.center)
+
+        val buttonWithImage = Button(mySkin)
+        buttonWithImage.add(image)
+        buttonWithImage.setPosition(
+            (col_width * 11).toFloat(),
+            (Gdx.graphics.height - row_height * 1).toFloat())
+        buttonWithImage.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+
+        buttonWithImage.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                val game = Gdx.app.getApplicationListener() as? MyGame
+                game?.setScreen(MainMenuScreen(game))
+                return true
+            }
+        })
+
+        AppContext.stage.addActor(buttonWithImage)
+
+    }
+
+    fun create_button_teleport_to_spawn() {
+        val buttonWithImage = Button(mySkin)
+        buttonWithImage.setPosition(
+            (col_width * 10).toFloat(),
+            (Gdx.graphics.height - row_height * 1).toFloat())
+        buttonWithImage.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+
+        buttonWithImage.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                AppContext.camera.position.set(-0.2f, 1.6f, 0.5f)
+                return true
+            }
+        })
+
+        AppContext.stage.addActor(buttonWithImage)
+
     }
 
 
