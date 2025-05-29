@@ -379,7 +379,10 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     }
 
     fun create_button_rotation_up() {
-        val button_rotate_up: Button = TextButton("Text Button", mySkin, "small")
+        val button_rotate_up: Button = TextButton("", mySkin, "small")
+        val texture = Texture(Gdx.files.internal("ui/menu/rotate_up.png"))
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
+        button_rotate_up.add(image)
         button_rotate_up.setSize((col_width).toFloat(), row_height.toFloat())
         button_rotate_up.setPosition(
             (col_width * 2).toFloat(),
@@ -400,7 +403,10 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
 
     fun create_button_rotation_right()  {
-        val button_rotate_right: Button = TextButton("Text Button", mySkin, "small")
+        val button_rotate_right: Button = TextButton("", mySkin, "small")
+        val texture = Texture(Gdx.files.internal("ui/menu/rotate_right.png"))
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
+        button_rotate_right.add(image)
         button_rotate_right.setSize((col_width).toFloat(), row_height.toFloat())
         button_rotate_right.setPosition(
             (col_width * 3).toFloat(),
@@ -421,7 +427,10 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
 
     fun create_button_rotation_down()  {
-        val button_rotate_down: Button = TextButton("Text Button", mySkin, "small")
+        val button_rotate_down: Button = TextButton("", mySkin, "small")
+        val texture = Texture(Gdx.files.internal("ui/menu/rotate_down.png"))
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
+        button_rotate_down.add(image)
         button_rotate_down.setSize((col_width).toFloat(), row_height.toFloat())
         button_rotate_down.setPosition(
             (col_width * 2).toFloat(),
@@ -443,7 +452,10 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
 
     fun create_button_rotation_left()  {
-        val button_rotate_left: Button = TextButton("Text Button", mySkin, "small")
+        val button_rotate_left: Button = TextButton("", mySkin, "small")
+        val texture = Texture(Gdx.files.internal("ui/menu/rotate_left.png"))
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
+        button_rotate_left.add(image)
         button_rotate_left.setSize((col_width).toFloat(), row_height.toFloat())
         button_rotate_left.setPosition(
             (col_width * 1).toFloat(),
@@ -464,7 +476,10 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
 
     fun create_button_move_forward() {
-        val button_move_foward: Button = TextButton("Text Button", mySkin, "small")
+        val button_move_foward: Button = TextButton("", mySkin, "small")
+        val texture = Texture(Gdx.files.internal("ui/menu/move_forward.png"))
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
+        button_move_foward.add(image)
         button_move_foward.setSize((col_width).toFloat(), row_height.toFloat())
         button_move_foward.setPosition(
             (col_width * 9).toFloat(),
@@ -484,7 +499,10 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     }
 
     fun create_button_move_backward() {
-        val button_move_backward: Button = TextButton("Text Button", mySkin, "small")
+        val button_move_backward: Button = TextButton("", mySkin, "small")
+        val texture = Texture(Gdx.files.internal("ui/menu/move_backward.png"))
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
+        button_move_backward.add(image)
         button_move_backward.setSize((col_width).toFloat(), row_height.toFloat())
         button_move_backward.setPosition(
             (col_width * 9).toFloat(),
@@ -578,10 +596,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
     fun create_button_go_home() {
         val texture = Texture(Gdx.files.internal("ui/menu/home.png"))
-        texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
-        val region = TextureRegion(texture)
-        val drawable = TextureRegionDrawable(region)
-        val image = Image(drawable)
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
 
         val buttonWithImage = TextButton("", mySkin, "small")
         buttonWithImage.add(image)
@@ -604,9 +619,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
     fun create_button_teleport_to_spawn() {
         val texture = Texture(Gdx.files.internal("ui/menu/to_spawn.png"))
-        val region = TextureRegion(texture)
-        val drawable = TextureRegionDrawable(region)
-        val image = Image(drawable)
+        val image = Image(TextureRegionDrawable(TextureRegion(texture)))
 
         val buttonWithImage = TextButton("", mySkin, "small")
         buttonWithImage.add(image)
