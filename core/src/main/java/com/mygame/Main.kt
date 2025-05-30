@@ -102,7 +102,7 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
 
         AppContext.camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         AppContext.camera.near = 0.1f // Минимальное расстояние, которое видит камера
-        AppContext.camera.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
+        AppContext.camera.far = 200f  // Максимальное расстояние (достаточно для вашей модели)
         AppContext.camera.position.set(-0.2f, 1.6f, 0.5f)
         AppContext.camera.update()
         sceneManager!!.setCamera(AppContext.camera)
