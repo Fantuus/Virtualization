@@ -31,7 +31,7 @@ class MainMenuScreen(private val game: MyGame) : Screen {
     }
 
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0.4f, 0.4f, 0.4f, 1f)
+        Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         stage.act(delta)
         stage.draw()
@@ -147,7 +147,7 @@ class StartMenuUiCreator(val game: MyGame) {
         label.setAlignment(Align.center)
 
         val card = Table(skin)
-        card.background = skin.newDrawable("white", Color(0.3f, 0.1f, 0.3f, 0.8f)) // Темный фон
+        card.background = skin.newDrawable("white", Color(0.4f, 0.2f, 0.5f, 1f))
         card.pad(marginBetweenElement*10)
         card.add(image).size(imageWidth, imageHeight).row()
         card.add(label).padTop(marginBetweenElement).center()
