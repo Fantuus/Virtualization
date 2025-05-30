@@ -30,23 +30,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.badlogic.gdx.audio.Sound //
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.graphics.g3d.model.Node
 import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import com.badlogic.gdx.utils.Align
 
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
  * общая для всех платформ.
  */
-
-
 
 object AppContext {
     lateinit var stage: Stage
@@ -96,18 +90,16 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         val path_to_sounds = "sounds/$worldName/"
         AppContext.stage = Stage(ScreenViewport())
         Gdx.input.inputProcessor = AppContext.stage
-        // create scene
+
         val sceneAsset = GLTFLoader().load(Gdx.files.internal(path_to_model))
         AppContext.scene = Scene(sceneAsset.scene)
-
 
         AppContext.collisionManager = CollisionManager(AppContext.scene.modelInstance)
         AppContext.collisionManager.loadColliders()
 
-
         sceneManager = SceneManager()
         sceneManager!!.addScene(AppContext.scene)
-        // setup camera (The BoomBox model is very small so you may need to adapt camera settings for your scene)
+
         AppContext.camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         AppContext.camera.near = 0.1f // Минимальное расстояние, которое видит камера
         AppContext.camera.far = 50f  // Максимальное расстояние (достаточно для вашей модели)
@@ -142,9 +134,6 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         sceneManager!!.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap))
 
 
-        // setup skybox
-//        skybox = SceneSkybox(environmentCubemap)
-//        sceneManager!!.skyBox = skybox
         val cubemap = Cubemap(
             Gdx.files.internal("textures/environment/environment_posx.png"),
             Gdx.files.internal("textures/environment/environment_negx.png"),
@@ -155,7 +144,6 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         )
         skybox = SceneSkybox(cubemap)
         sceneManager!!.skyBox = skybox
-
 
         threshold= Threshold(sensorProvider)
         sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
@@ -175,7 +163,6 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
         button_creator!!.create_button_go_home()
         button_creator!!.create_button_teleport_to_spawn()
-
 
         AppContext.triggers = Triggers(path_to_sounds)
         AppContext.triggers.find_animations()
@@ -262,7 +249,6 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
                 AppContext.cameraController.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
             }
         }
-//        button_creator!!.print_to_label("f-s-b: ${real_move_direction}    speed: ${sensorProvider.MovingZ}")
 
         AppContext.stage.act()
         AppContext.stage.draw()
@@ -290,7 +276,6 @@ class CameraController(var speed_move_camera: Float, var speed_rotation_camera: 
         direction.y = 0f
         direction.nor()
         val old_pos = AppContext.camera.position.cpy()
-        Gdx.app.log("old_pos 1", "${old_pos}")
         if (move_direction == MoveDirections.FORWARD.value) {
             val distance_step_forward = direction.scl(distance_delta)
             AppContext.camera.position.add(distance_step_forward)
@@ -298,12 +283,9 @@ class CameraController(var speed_move_camera: Float, var speed_rotation_camera: 
             val distance_step_backward = direction.scl(-distance_delta)
             AppContext.camera.position.add(distance_step_backward)
         }
-        Gdx.app.log("camera pos", "${AppContext.camera.position}")
-        Gdx.app.log("collision", "${AppContext.collisionManager.checkCollision(AppContext.camera.position)}")
         if (AppContext.collisionManager.checkCollision(AppContext.camera.position)) {
             AppContext.camera.position.set(old_pos)
         }
-        Gdx.app.log("old_pos 2", "${old_pos}")
         AppContext.camera.update()
     }
 
@@ -360,12 +342,11 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     private var outputLabel: Label? = null
 
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
-        // Вызывается, когда анимация закончилась
     }
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
-        // Вызывается, когда циклическая анимация повторяется
     }
+
     fun create_label() {
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
@@ -425,7 +406,6 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(button_rotate_right)
     }
 
-
     fun create_button_rotation_down()  {
         val button_rotate_down: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_down.png"))
@@ -450,7 +430,6 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
     }
 
-
     fun create_button_rotation_left()  {
         val button_rotate_left: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_left.png"))
@@ -473,7 +452,6 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         })
         AppContext.stage.addActor(button_rotate_left)
     }
-
 
     fun create_button_move_forward() {
         val button_move_foward: Button = TextButton("", mySkin, "small")
@@ -520,8 +498,6 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         })
         AppContext.stage.addActor(button_move_backward)
     }
-
-
 
 
     fun create_button_threshholt_gyro_minus() {
@@ -594,6 +570,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(button_rotate_up)
     }
 
+
     fun create_button_go_home() {
         val texture = Texture(Gdx.files.internal("ui/menu/home.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -612,9 +589,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
                 return true
             }
         })
-
         AppContext.stage.addActor(buttonWithImage)
-
     }
 
     fun create_button_teleport_to_spawn() {
@@ -634,9 +609,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
                 return true
             }
         })
-
         AppContext.stage.addActor(buttonWithImage)
-
     }
 
 
@@ -801,7 +774,6 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
 }
 
 
-
 class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelInstance) {
     val objectBoundsMap = mutableMapOf<String, BoundingBox>()
 
@@ -817,10 +789,7 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
 
             val bounds = BoundingBox()
             node.calculateBoundingBox(bounds)
-//            bounds.mul(worldTransform)
             objectBoundsMap[node.id] = bounds
-            Gdx.app.log("node_name", "${node.id}")
-            Gdx.app.log("node_box", "$bounds")
 
             if (node.children.iterator().hasNext()) {
                 traverseSceneGraph(worldTransform, node.children)
@@ -832,7 +801,6 @@ class CollisionManager(val modelInstance: com.badlogic.gdx.graphics.g3d.ModelIns
         val cameraBox = createCameraBounds(cameraPosition)
         for ((key, objBounds) in objectBoundsMap) {
             if (cameraBox.intersects(objBounds)) {
-//                objectBoundsMap.remove(key)
                 return true
             }
         }

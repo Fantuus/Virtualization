@@ -53,8 +53,6 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
         set(value) { sensorData.threshold_gyroXYZ = value.toFloat() }
 
 
-
-
     override val accelZBuffer: Float
         get() {
             val average = sensorData.accelZBuffer

@@ -158,7 +158,6 @@ class StartMenuUiCreator(val game: MyGame) {
                 return true
             }
         })
-
         return card
     }
 }

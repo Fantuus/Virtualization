@@ -40,14 +40,8 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
     val threshold_gyroXYZ_list =               listOf(0f, 0.1f, 0.15f, 0.2f,  0.3f, 0.45f, 0.7f, 0.9f, 1.5f, 1.9f, 2.5f)
     val speed_rotation_camera_by_sensor_list = listOf(0f, 0.2f, 0.22f, 0.25f, 0.35f, 0.6f, 0.8f, 1.1f, 1.6f, 2.2f, 4f  )
 
-
-//    val threshold_accelerationZ_list = listOf(0f, 0.1f, 0.15f, 0.2f,  0.3f, 0.45f, 0.7f, 0.9f, 1.5f, 1.9f, 2.5f, )
-
-
     val threshold_acceleration_axis_list =      listOf(0f, 0.05f, 0.1f,   0.15f,  0.2f,  0.3f)
     val speed_move_camera_by_sensor_axis_list = listOf(0f, 0.01f, 0.025f, 0.035f, 0.04f, 0.06f)
-
-
 
 
     // Параметры для гироскопа
@@ -67,8 +61,6 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
     val accelZBuffer = ArrayDeque<Float>(len_accelerationBuffer)
 
 
-
-
     fun startListening() {
         val gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
         val gravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
@@ -79,7 +71,6 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         gravity?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL) }
         linearAcceleration?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
         significantMotionSensor?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
-
     }
 
     fun stopListening() {
@@ -94,7 +85,6 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
             }
         }
     }
-
 
     private fun handleGyroscopeData(event: SensorEvent) {
         gyroXBuffer.addLast(event.values[0])

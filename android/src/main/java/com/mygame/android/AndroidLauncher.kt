@@ -14,7 +14,6 @@ class AndroidLauncher : AndroidApplication() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         sensorProvider = AndroidSensorProvider(this)
 
         val config = AndroidApplicationConfiguration().apply {
