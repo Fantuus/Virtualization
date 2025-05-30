@@ -37,8 +37,8 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
 
     var isZMoving = false
 
-    val threshold_gyroXYZ_list =               listOf(0f, 0.1f, 0.15f, 0.2f,  0.3f, 0.45f, 0.7f, 0.9f)
-    val speed_rotation_camera_by_sensor_list = listOf(0f, 0.2f, 0.22f, 0.25f, 0.35f, 0.6f, 0.8f, 1.1f)
+    val threshold_gyroXYZ_list =               listOf(0f, 0.1f, 0.15f, 0.2f,  0.3f, 0.45f, 0.7f, 0.9f, 1.5f, 1.9f, 2.5f)
+    val speed_rotation_camera_by_sensor_list = listOf(0f, 0.2f, 0.22f, 0.25f, 0.35f, 0.6f, 0.8f, 1.1f, 1.6f, 2.2f, 4f  )
 
 
 //    val threshold_accelerationZ_list = listOf(0f, 0.1f, 0.15f, 0.2f,  0.3f, 0.45f, 0.7f, 0.9f, 1.5f, 1.9f, 2.5f, )
