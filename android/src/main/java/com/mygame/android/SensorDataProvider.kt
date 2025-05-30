@@ -14,21 +14,6 @@ import kotlin.math.*
 class SensorDataProvider(private val context: Context) : SensorEventListener {
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
-    // Состояния для данных с датчиков
-    private val _gyroscopeData = mutableStateOf("Gyro: X=0.00, Y=0.00, Z=0.00")
-    val gyroscopeData: State<String> get() = _gyroscopeData
-
-    private val _significantMotionData = mutableStateOf("Significant Motion: Stopped")
-    val significantMotionData: State<String> get() = _significantMotionData
-
-    // Состояния для отображения вращений
-    private val _rotationStatus = mutableStateOf("X: Stopped, Y: Stopped, Z: Stopped")
-    val rotationStatus: State<String> get() = _rotationStatus
-
-    // Состояния для движения по осям
-    private val _movementStatus = mutableStateOf("X: Stopped, Y: Stopped, Z: Stopped")
-    val movementStatus: State<String> get() = _movementStatus
-
     // Флаг для значительного движения
     var isMoving = false
 
@@ -101,10 +86,6 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         }
         isXRotating = abs(gyroXBuffer.average()) > threshold_gyroXYZ
         isYRotating = abs(gyroYBuffer.average()) > threshold_gyroXYZ
-        val isZRotating = abs(gyroZBuffer.average()) > threshold_gyroXYZ
-        _rotationStatus.value = "Верх Низ:       ${if (isXRotating) "%.2f".format(gyroXBuffer.average()) else "Stopped"}\n" +
-            "Лево Право:  ${if (isYRotating) "%.2f".format(gyroYBuffer.average()) else "Stopped"}"
-        _gyroscopeData.value = "X=${"%.2f".format(event.values[0])}, Y=${"%.2f".format(event.values[1])}, Z=${"%.2f".format(event.values[2])}"
     }
 
     private fun handleLinearAccelerationData(event: SensorEvent) {
@@ -114,7 +95,6 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
         accelerationBuffer.addLast(accelerationMagnitude)
         if (accelerationBuffer.size > len_accelerationBuffer) accelerationBuffer.removeFirst()
         isMoving = accelerationBuffer.average().toFloat() > threshold_acceleration
-        _significantMotionData.value = "\nSteps:  ${if (isMoving) "Moving" else "Stopped"}"
 
         accelXBuffer.addLast(event.values[0])
         accelYBuffer.addLast(event.values[1])
@@ -124,10 +104,7 @@ class SensorDataProvider(private val context: Context) : SensorEventListener {
             accelYBuffer.removeFirst()
             accelZBuffer.removeFirst()
         }
-        val isXMoving = abs(accelXBuffer.average()) > threshold_acceleration_axis
-        val isYMoving = abs(accelYBuffer.average()) > threshold_acceleration_axis
         isZMoving = abs(accelZBuffer.average()) > threshold_acceleration_axis
-        _movementStatus.value = "Лево Право:       ${if (isXMoving) "%.2f".format(accelXBuffer.average()) else "Stopped"}\n Верх Низ:           ${if (isYMoving) "%.2f".format(accelYBuffer.average()) else "Stopped"}\n Вперёд Назад:  ${if (isZMoving) "%.2f".format(accelZBuffer.average()) else "Stopped"}"
     }
 
 
