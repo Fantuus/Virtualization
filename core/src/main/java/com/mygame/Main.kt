@@ -160,6 +160,10 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         button_creator!!.create_button_move_forward()
         button_creator!!.create_button_move_backward()
 
+        button_creator!!.create_button_threshholt_gyro_minus()
+        button_creator!!.create_button_threshholt_gyro_plus()
+        button_creator!!.create_button_speed_rotation_camera_by_sensor_minus()
+        button_creator!!.create_button_speed_rotation_camera_by_sensor_plus()
         button_creator!!.create_button_go_home()
         button_creator!!.create_button_teleport_to_spawn()
 
@@ -497,6 +501,78 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         })
         AppContext.stage.addActor(button_move_backward)
     }
+
+
+    fun create_button_threshholt_gyro_minus() {
+        val button_rotate_up: Button = TextButton("T -", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 1).toFloat(),
+            (Gdx.graphics.height - row_height * 1).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                val new_threshold_gyroXYZ = sensitivity!!.threshold!!.sensorProvider.threshold_gyroXYZ - 0.01f
+                sensitivity.threshold!!.change_threshold(new_threshold_gyroXYZ)
+                print_to_label("threshold_gyroXYZ: ${sensitivity.threshold!!.sensorProvider.threshold_gyroXYZ}")
+                return true
+            }
+        })
+        AppContext.stage.addActor(button_rotate_up)
+    }
+
+    fun create_button_threshholt_gyro_plus() {
+        val button_rotate_up: Button = TextButton("T +", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 2).toFloat(),
+            (Gdx.graphics.height - row_height * 1).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                val new_threshold_gyroXYZ = sensitivity!!.threshold!!.sensorProvider.threshold_gyroXYZ + 0.01f
+                sensitivity.threshold!!.change_threshold(new_threshold_gyroXYZ)
+                print_to_label("threshold_gyroXYZ: ${sensitivity.threshold!!.sensorProvider.threshold_gyroXYZ}")
+                return true
+            }
+        })
+        AppContext.stage.addActor(button_rotate_up)
+    }
+
+    fun create_button_speed_rotation_camera_by_sensor_minus() {
+        val button_rotate_up: Button = TextButton("R -", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 1).toFloat(),
+            (Gdx.graphics.height - row_height * 2).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                sensitivity!!.speed_rotation_camera_by_sensor -= 0.1f
+                print_to_label("rotation_by_sensor: ${sensitivity!!.speed_rotation_camera_by_sensor}")
+                return true
+            }
+        })
+        AppContext.stage.addActor(button_rotate_up)
+    }
+
+    fun create_button_speed_rotation_camera_by_sensor_plus() {
+        val button_rotate_up: Button = TextButton("R +", mySkin, "small")
+        button_rotate_up.setSize((col_width).toFloat()/2, row_height.toFloat()/2)
+        button_rotate_up.setPosition(
+            (col_width * 2).toFloat(),
+            (Gdx.graphics.height - row_height * 2).toFloat()
+        )
+        button_rotate_up.addListener(object : InputListener() {
+            override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean {
+                sensitivity!!.speed_rotation_camera_by_sensor += 0.1f
+                print_to_label("rotation_by_sensor: ${sensitivity!!.speed_rotation_camera_by_sensor}")
+                return true
+            }
+        })
+        AppContext.stage.addActor(button_rotate_up)
+    }
+
 
     fun create_button_go_home() {
         val texture = Texture(Gdx.files.internal("ui/menu/home.png"))

@@ -63,7 +63,7 @@ configure(subprojects - project(':android')) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'Virtualization'
+  ext.appName = 'FirstGdx'
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -75,4 +75,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'Virtualization' + '-parent'
+eclipse.project.name = 'FirstGdx' + '-parent'
