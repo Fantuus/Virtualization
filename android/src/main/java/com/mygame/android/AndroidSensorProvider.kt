@@ -1,7 +1,7 @@
 package com.mygame.android
 
 import android.content.Context
-import com.mygame.SensorProvider
+import com.mygame.in_3d_world.SensorProvider
 
 class AndroidSensorProvider(context: Context) : SensorProvider {
     private val sensorData = SensorDataProvider(context)
