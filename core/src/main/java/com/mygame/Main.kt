@@ -63,17 +63,14 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
     private var skybox: SceneSkybox? = null
     private var light: DirectionalLightEx? = null
 
-
     var threshold: Threshold? = null
     var sensitivity: Sensitivity? = null
-
 
     private val speed_rotation_camera_by_button = 25f
     private val speed_move_camera_by_button = 0.4f
 
     private val speed_rotation_camera_by_sensor = 0.6f
     private val speed_move_camera_by_sensor = 0.01f
-
 
     private var button_creator: ButtonCreator? = null
 
@@ -83,7 +80,6 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
     private var lastInputTime = 0f
     private var timeToHideButtons = 5f
     private var showUI = false
-
 
     override fun create() {
         val path_to_model = "models/$worldName/gltf/$worldName.gltf"
@@ -100,76 +96,22 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         sceneManager = SceneManager()
         sceneManager!!.addScene(AppContext.scene)
 
-        AppContext.camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-        AppContext.camera.near = 0.1f // Минимальное расстояние, которое видит камера
-        AppContext.camera.far = 200f  // Максимальное расстояние (достаточно для вашей модели)
-        AppContext.camera.position.set(-0.2f, 1.6f, 0.5f)
-        AppContext.camera.update()
-        sceneManager!!.setCamera(AppContext.camera)
-        AppContext.cameraController = CameraController(speed_move_camera_by_button, speed_rotation_camera_by_button)
+        setup_camera()
 
-//         setup light
-        light = DirectionalLightEx()
-        light!!.direction.set(1f, -3f, 1f).nor()
-        light!!.color.set(Color.WHITE)
-        sceneManager!!.environment.add(light)
+        setup_all_light()
 
-        // setup quick IBL (image based lighting)
-        val iblBuilder = IBLBuilder.createOutdoor(light)
-        environmentCubemap = iblBuilder.buildEnvMap(1024)
-        diffuseCubemap = iblBuilder.buildIrradianceMap(256)
-        specularCubemap = iblBuilder.buildRadianceMap(10)
-        iblBuilder.dispose()
-
-        // This texture is provided by the library, no need to have it in your assets.
-        brdfLUT = Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"))
-        sceneManager!!.setAmbientLight(1f)
-        sceneManager!!.environment.set(
-            PBRTextureAttribute(
-                PBRTextureAttribute.BRDFLUTTexture,
-                brdfLUT
-            )
-        )
-        sceneManager!!.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap))
-        sceneManager!!.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap))
-
-
-        val cubemap = Cubemap(
-            Gdx.files.internal("textures/environment/environment_posx.png"),
-            Gdx.files.internal("textures/environment/environment_negx.png"),
-            Gdx.files.internal("textures/environment/environment_posy.png"),
-            Gdx.files.internal("textures/environment/environment_negy.png"),
-            Gdx.files.internal("textures/environment/environment_posz.png"),
-            Gdx.files.internal("textures/environment/environment_negz.png")
-        )
-        skybox = SceneSkybox(cubemap)
-        sceneManager!!.skyBox = skybox
+        setup_scybox()
 
         threshold= Threshold(sensorProvider)
         sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
 
         button_creator = ButtonCreator(sensitivity)
-        button_creator!!.create_label()
-        button_creator!!.create_button_rotation_up()
-        button_creator!!.create_button_rotation_right()
-        button_creator!!.create_button_rotation_down()
-        button_creator!!.create_button_rotation_left()
-        button_creator!!.create_button_move_forward()
-        button_creator!!.create_button_move_backward()
-
-        button_creator!!.create_button_go_home()
-        button_creator!!.create_button_teleport_to_spawn()
-
-        AppContext.triggers = Triggers(path_to_sounds)
-        AppContext.triggers.find_animations()
-        AppContext.triggers.find_and_load_audios()
-        AppContext.triggers.find_triggers_zone()
-        AppContext.triggers.create_bounding_boxes()
-        AppContext.triggers.createAnimBoundsMap()
-        AppContext.triggers.createAudioBoundsMap()
-
+        button_creator!!.create_all_ui()
         button_creator!!.hide_buttons()
         showUI = false
+
+        AppContext.triggers = Triggers(path_to_sounds)
+        AppContext.triggers.setup_all_triggers()
     }
 
 
@@ -249,6 +191,57 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         AppContext.stage.act()
         AppContext.stage.draw()
     }
+
+    private fun setup_all_light() {
+        light = DirectionalLightEx()
+        light!!.direction.set(1f, -3f, 1f).nor()
+        light!!.color.set(Color.WHITE)
+        sceneManager!!.environment.add(light)
+
+        // setup quick IBL (image based lighting)
+        val iblBuilder = IBLBuilder.createOutdoor(light)
+        environmentCubemap = iblBuilder.buildEnvMap(1024)
+        diffuseCubemap = iblBuilder.buildIrradianceMap(256)
+        specularCubemap = iblBuilder.buildRadianceMap(10)
+        iblBuilder.dispose()
+
+        // This texture is provided by the library, no need to have it in your assets.
+        brdfLUT = Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"))
+        sceneManager!!.setAmbientLight(1f)
+        sceneManager!!.environment.set(
+            PBRTextureAttribute(
+                PBRTextureAttribute.BRDFLUTTexture,
+                brdfLUT
+            )
+        )
+        sceneManager!!.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap))
+        sceneManager!!.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap))
+    }
+
+    private fun setup_scybox() {
+        val cubemap = Cubemap(
+            Gdx.files.internal("textures/environment/environment_posx.png"),
+            Gdx.files.internal("textures/environment/environment_negx.png"),
+            Gdx.files.internal("textures/environment/environment_posy.png"),
+            Gdx.files.internal("textures/environment/environment_negy.png"),
+            Gdx.files.internal("textures/environment/environment_posz.png"),
+            Gdx.files.internal("textures/environment/environment_negz.png")
+        )
+        skybox = SceneSkybox(cubemap)
+        sceneManager!!.skyBox = skybox
+    }
+
+    private fun setup_camera() {
+        AppContext.camera = PerspectiveCamera(60f, Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
+        AppContext.camera.near = 0.1f // Минимальное расстояние, которое видит камера
+        AppContext.camera.far = 200f  // Максимальное расстояние (достаточно для вашей модели)
+        AppContext.camera.position.set(-0.2f, 1.6f, 0.5f)
+        AppContext.camera.update()
+        sceneManager!!.setCamera(AppContext.camera)
+        AppContext.cameraController = CameraController(speed_move_camera_by_button, speed_rotation_camera_by_button)
+    }
+
+
 
     override fun dispose() {
         sceneManager!!.dispose()
@@ -343,7 +336,20 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
     }
 
-    fun create_label() {
+    fun create_all_ui() {
+        create_label()
+        create_button_rotation_up()
+        create_button_rotation_right()
+        create_button_rotation_down()
+        create_button_rotation_left()
+        create_button_move_forward()
+        create_button_move_backward()
+        create_button_go_home()
+        create_button_teleport_to_spawn()
+    }
+
+
+    private fun create_label() {
         outputLabel = Label("Press a Button", mySkin, "black")
         outputLabel!!.setSize(Gdx.graphics.width.toFloat(), row_height.toFloat())
         outputLabel!!.setPosition(0f, row_height.toFloat()*4)
@@ -355,7 +361,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         outputLabel!!.setText(text)
     }
 
-    fun create_button_rotation_up() {
+    private fun create_button_rotation_up() {
         val button_rotate_up: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_up.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -379,7 +385,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
     }
 
 
-    fun create_button_rotation_right()  {
+    private fun create_button_rotation_right()  {
         val button_rotate_right: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_right.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -402,7 +408,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(button_rotate_right)
     }
 
-    fun create_button_rotation_down()  {
+    private fun create_button_rotation_down()  {
         val button_rotate_down: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_down.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -426,7 +432,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
 
     }
 
-    fun create_button_rotation_left()  {
+    private fun create_button_rotation_left()  {
         val button_rotate_left: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_left.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -449,7 +455,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(button_rotate_left)
     }
 
-    fun create_button_move_forward() {
+    private fun create_button_move_forward() {
         val button_move_foward: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/move_forward.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -472,7 +478,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(button_move_foward)
     }
 
-    fun create_button_move_backward() {
+    private fun create_button_move_backward() {
         val button_move_backward: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/move_backward.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -495,7 +501,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(button_move_backward)
     }
 
-    fun create_button_go_home() {
+    private fun create_button_go_home() {
         val texture = Texture(Gdx.files.internal("ui/menu/home.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
 
@@ -517,7 +523,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
         AppContext.stage.addActor(buttonWithImage)
     }
 
-    fun create_button_teleport_to_spawn() {
+    private fun create_button_teleport_to_spawn() {
         val texture = Texture(Gdx.files.internal("ui/menu/to_spawn.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
 
@@ -581,7 +587,17 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
     // Словарь для хранения звуков
     private val soundMap = mutableMapOf<String, Music>()
 
-    fun find_animations() {
+    fun setup_all_triggers() {
+        find_animations()
+        find_and_load_audios()
+        find_triggers_zone()
+        create_bounding_boxes()
+        createAnimBoundsMap()
+        createAudioBoundsMap()
+    }
+
+
+    private fun find_animations() {
         val animations = AppContext.scene.modelInstance.animations
         for (animation in animations) {
             val animationName = animation.id
@@ -591,7 +607,7 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
         animationNames.sort()
     }
 
-    fun find_and_load_audios() {
+    private fun find_and_load_audios() {
         val soundsFolder = Gdx.files.internal(path_to_sounds) // Путь к папке assets/sounds
         if (!soundsFolder.exists() || !soundsFolder.isDirectory) {
             Gdx.app.error("Sounds", "Папка '$path_to_sounds' не найдена или это не папка")
@@ -609,7 +625,7 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
         audioNames.sort()
     }
 
-    fun find_triggers_zone() {
+    private fun find_triggers_zone() {
         val nodes = AppContext.scene.modelInstance.nodes
         for (node in nodes) {
             if (node.id.startsWith("anim_zone_", ignoreCase = false)) {
@@ -622,7 +638,7 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
         audio_trigger_zones.sort()
     }
 
-    fun create_bounding_boxes() {
+    private fun create_bounding_boxes() {
         for (zoneName in anim_trigger_zones) {
             val zoneNode = AppContext.scene.modelInstance.getNode(zoneName)
             if (zoneNode != null) {
@@ -642,7 +658,7 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
         }
     }
 
-    fun createAnimBoundsMap() {
+    private fun createAnimBoundsMap() {
         if (animationNames.size != animBoundsList.size) {
             Gdx.app.error("Triggers", "Размеры animationNames и animBoundsList не совпадают")
         }
@@ -651,7 +667,7 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
         }
     }
 
-    fun createAudioBoundsMap() {
+    private fun createAudioBoundsMap() {
         if (audioNames.size != audioBoundsList.size) {
             Gdx.app.error("Triggers", "Размеры audioNames и audioBoundsList не совпадают")
         }
