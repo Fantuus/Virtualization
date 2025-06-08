@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
-class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
+class ButtonCreator(): ApplicationAdapter(),
     AnimationController.AnimationListener  {
     val row_height = Gdx.graphics.width / 12
     val col_width = Gdx.graphics.width / 12

@@ -2,14 +2,11 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.PerspectiveCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g3d.utils.AnimationController
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector3
 import net.mgsx.gltf.loaders.gltf.GLTFLoader
 import net.mgsx.gltf.scene3d.attributes.PBRCubemapAttribute
@@ -20,22 +17,9 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset
 import net.mgsx.gltf.scene3d.scene.SceneManager
 import net.mgsx.gltf.scene3d.scene.SceneSkybox
 import net.mgsx.gltf.scene3d.utils.IBLBuilder
-import com.badlogic.gdx.math.Quaternion
-import com.badlogic.gdx.math.collision.BoundingBox
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Button
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Matrix4
-import com.badlogic.gdx.graphics.g3d.model.Node
-import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
 /**
  * Реализация {@link com.badlogic.gdx.ApplicationListener},
@@ -63,14 +47,8 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
     private var skybox: SceneSkybox? = null
     private var light: DirectionalLightEx? = null
 
-    var threshold: Threshold? = null
-    var sensitivity: Sensitivity? = null
-
     private val speed_rotation_camera_by_button = 25f
     private val speed_move_camera_by_button = 0.4f
-
-    private val speed_rotation_camera_by_sensor = 0.6f
-    private val speed_move_camera_by_sensor = 0.01f
 
     private var button_creator: ButtonCreator? = null
 
@@ -102,10 +80,7 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
 
         setup_scybox()
 
-        threshold= Threshold(sensorProvider)
-        sensitivity = Sensitivity(threshold, speed_rotation_camera_by_button, speed_move_camera_by_button, speed_rotation_camera_by_sensor, speed_move_camera_by_sensor)
-
-        button_creator = ButtonCreator(sensitivity)
+        button_creator = ButtonCreator()
         button_creator!!.create_all_ui()
         button_creator!!.hide_buttons()
         showUI = false
@@ -287,14 +262,3 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
     }
 
 }
-
-class Sensitivity(var threshold: Threshold?, var speed_rotation_camera_by_button: Float, var speed_move_camera_by_button: Float, var speed_rotation_camera_by_sensor: Float, var speed_move_camera_by_sensor: Float)
-
-class Threshold(var sensorProvider: SensorProvider) {
-
-    fun change_threshold(new_val: Float) {
-        sensorProvider.threshold_gyroXYZ = new_val
-    }
-}
-
-
