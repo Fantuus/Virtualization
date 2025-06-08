@@ -8,21 +8,30 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
 
     override val rotationX: Float
         get() {
-            val average = sensorData.gyroXBuffer
-                .filterNotNull()
-                .takeIf { it.isNotEmpty() }
-                ?.average()
-                ?.toFloat() ?: 0f
+
+            val bufferCopy = synchronized(sensorData.gyroXBuffer) {
+                sensorData.gyroXBuffer.toList()
+            }
+            val filtered = bufferCopy.filterNotNull()
+            val average = if (filtered.isNotEmpty()) {
+                filtered.average().toFloat()
+            } else {
+                0f
+            }
 
             return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_GYRO_XYZ)
         }
     override val rotationY: Float
         get() {
-            val average = sensorData.gyroYBuffer
-                .filterNotNull()
-                .takeIf { it.isNotEmpty() }
-                ?.average()
-                ?.toFloat() ?: 0f
+            val bufferCopy = synchronized(sensorData.gyroYBuffer) {
+                sensorData.gyroYBuffer.toList()
+            }
+            val filtered = bufferCopy.filterNotNull()
+            val average = if (filtered.isNotEmpty()) {
+                filtered.average().toFloat()
+            } else {
+                0f
+            }
             return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_GYRO_XYZ)
         }
     override val isMoving: Boolean
@@ -40,11 +49,16 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
 
     override val MovingZ: Float
         get() {
-            val average = sensorData.accelZBuffer
-                .filterNotNull()
-                .takeIf { it.isNotEmpty() }
-                ?.average()
-                ?.toFloat() ?: 0f
+            val bufferCopy = synchronized(sensorData.accelZBuffer) {
+                sensorData.accelZBuffer.toList()
+            }
+            val filtered = bufferCopy.filterNotNull()
+            val average = if (filtered.isNotEmpty()) {
+                filtered.average().toFloat()
+            } else {
+                0f
+            }
+
             return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_ACCELERATION_AXIS)
         }
 
@@ -55,11 +69,16 @@ class AndroidSensorProvider(context: Context) : SensorProvider {
 
     override val accelZBuffer: Float
         get() {
-            val average = sensorData.accelZBuffer
-                .filterNotNull()
-                .takeIf { it.isNotEmpty() }
-                ?.average()
-                ?.toFloat() ?: 0f
+            val bufferCopy = synchronized(sensorData.accelZBuffer) {
+                sensorData.accelZBuffer.toList()
+            }
+            val filtered = bufferCopy.filterNotNull()
+            val average = if (filtered.isNotEmpty()) {
+                filtered.average().toFloat()
+            } else {
+                0f
+            }
+
             return sensorData.nearest_lower_rotatatin_velocity_by_gyroscope(average, ThresholdType.THRESHOLD_ACCELERATION_AXIS)
         }
 
