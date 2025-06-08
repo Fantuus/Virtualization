@@ -31,7 +31,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import kotlin.math.abs
-import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.graphics.g3d.model.Node
@@ -96,6 +95,9 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         AppContext.scene = Scene(sceneAsset.scene)
 
         AppContext.collisionManager = CollisionManager(AppContext.scene.modelInstance)
+        Gdx.app.log("123", "")
+        Gdx.app.log("123", "")
+        Gdx.app.log("123", "")
         AppContext.collisionManager.loadColliders()
 
         sceneManager = SceneManager()
@@ -744,6 +746,12 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
                 animationsLaunched[animationName] = true
             }
         }
+        val nodes = AppContext.scene.modelInstance.nodes
+        for (node in nodes) {
+            if (node.isAnimated) {
+                AppContext.collisionManager.objectBoundsMap.remove(node.id)
+            }
+        }
     }
 
     fun check_and_start_audios(cameraPos: Vector3) {
@@ -772,7 +780,6 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
 
     override fun onEnd(animation: AnimationController.AnimationDesc?) {
         // Анимация закончилась
-        AppContext.collisionManager.loadColliders()
     }
 
     override fun onLoop(animation: AnimationController.AnimationDesc?) {
