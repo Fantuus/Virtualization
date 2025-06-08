@@ -95,9 +95,6 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         AppContext.scene = Scene(sceneAsset.scene)
 
         AppContext.collisionManager = CollisionManager(AppContext.scene.modelInstance)
-        Gdx.app.log("123", "")
-        Gdx.app.log("123", "")
-        Gdx.app.log("123", "")
         AppContext.collisionManager.loadColliders()
 
         sceneManager = SceneManager()
@@ -693,7 +690,6 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
         music.play()
 
         music.setOnCompletionListener {
-            Gdx.app.log("Audio", "$key finished playing")
         }
     }
 
