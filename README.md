@@ -1,4 +1,4 @@
-# FirstGdx
+# Virtualization
 ./gradlew lwjgl3:run
 ./gradlew android:installDebug android:run
 
