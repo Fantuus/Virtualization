@@ -24,11 +24,9 @@ class ButtonCreator(): ApplicationAdapter(),
     val mySkin = Skin(Gdx.files.internal(path_to_button_skin))
     private var outputLabel: Label? = null
 
-    override fun onEnd(animation: AnimationController.AnimationDesc?) {
-    }
+    override fun onEnd(animation: AnimationController.AnimationDesc?) { }
 
-    override fun onLoop(animation: AnimationController.AnimationDesc?) {
-    }
+    override fun onLoop(animation: AnimationController.AnimationDesc?) { }
 
     fun create_all_ui() {
         create_label()
@@ -41,7 +39,6 @@ class ButtonCreator(): ApplicationAdapter(),
         create_button_go_home()
         create_button_teleport_to_spawn()
     }
-
 
     private fun create_label() {
         outputLabel = Label("Press a Button", mySkin, "black")
@@ -78,7 +75,6 @@ class ButtonCreator(): ApplicationAdapter(),
         AppContext.stage.addActor(button_rotate_up)
     }
 
-
     private fun create_button_rotation_right()  {
         val button_rotate_right: Button = TextButton("", mySkin, "small")
         val texture = Texture(Gdx.files.internal("ui/menu/rotate_right.png"))
@@ -101,6 +97,7 @@ class ButtonCreator(): ApplicationAdapter(),
         })
         AppContext.stage.addActor(button_rotate_right)
     }
+
 
     private fun create_button_rotation_down()  {
         val button_rotate_down: Button = TextButton("", mySkin, "small")
@@ -195,6 +192,7 @@ class ButtonCreator(): ApplicationAdapter(),
         AppContext.stage.addActor(button_move_backward)
     }
 
+
     private fun create_button_go_home() {
         val texture = Texture(Gdx.files.internal("ui/menu/home.png"))
         val image = Image(TextureRegionDrawable(TextureRegion(texture)))
@@ -216,6 +214,7 @@ class ButtonCreator(): ApplicationAdapter(),
         })
         AppContext.stage.addActor(buttonWithImage)
     }
+
 
     private fun create_button_teleport_to_spawn() {
         val texture = Texture(Gdx.files.internal("ui/menu/to_spawn.png"))

@@ -7,10 +7,10 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
 
 class Triggers(val path_to_sounds: String) : AnimationController.AnimationListener {
-    val animationNames = mutableListOf<String>()
-    val audioNames = mutableListOf<String>()
-    val anim_trigger_zones = mutableListOf<String>()
-    val audio_trigger_zones = mutableListOf<String>()
+    private val animationNames = mutableListOf<String>()
+    private val audioNames = mutableListOf<String>()
+    private val anim_trigger_zones = mutableListOf<String>()
+    private val audio_trigger_zones = mutableListOf<String>()
     private val animBoundsList = mutableListOf<BoundingBox>()
     private val animBoundsMap = mutableMapOf<String, BoundingBox>()
     private val audioBoundsList = mutableListOf<BoundingBox>()
