@@ -1,22 +1,22 @@
 package com.mygame
 
 import com.badlogic.gdx.Screen
-import com.mygame.in_3d_world.Main
+import com.mygame.in_3d_world.VirtualWorld
 import com.mygame.in_3d_world.SensorProvider
 
 class GameScreen(private val sensorProvider: SensorProvider, worldName: String) : Screen {
-    private val main = Main(sensorProvider, worldName)
+    private val virtualWorld = VirtualWorld(sensorProvider, worldName)
 
     init {
-        main.create()
+        virtualWorld.create()
     }
 
     override fun render(delta: Float) {
-        main.render()
+        virtualWorld.render()
     }
 
     override fun resize(width: Int, height: Int) {
-        main.resize(width, height)
+        virtualWorld.resize(width, height)
     }
 
     override fun show() {}
@@ -24,14 +24,14 @@ class GameScreen(private val sensorProvider: SensorProvider, worldName: String) 
     override fun hide() {}
 
     override fun pause() {
-        main.pause()
+        virtualWorld.pause()
     }
 
     override fun resume() {
-        main.resume()
+        virtualWorld.resume()
     }
 
     override fun dispose() {
-        main.dispose()
+        virtualWorld.dispose()
     }
 }
