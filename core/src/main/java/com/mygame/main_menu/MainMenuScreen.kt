@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.mygame.GameScreen
+import com.mygame.in_3d_world.GameScreen
 import com.mygame.MyGame
 import com.mygame.main_menu.MainMenuScreen.WorldData
 
