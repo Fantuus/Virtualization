@@ -123,70 +123,14 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         val deltaTime = Gdx.graphics.deltaTime
         time += deltaTime
 
-        if (Gdx.input.isTouched) {
-            lastInputTime = time
-            if (!showUI) {
-                button_creator!!.show_buttons()
-                showUI = true
-            }
-        }
+        if (Gdx.input.isTouched) run { show_ui() }
+        if (showUI && time - lastInputTime > timeToHideButtons) run { hide_ui() }
 
-        if (showUI && time - lastInputTime > timeToHideButtons) {
-            button_creator!!.hide_buttons()
-            showUI = false
-        }
+        update_camera()
+        render_screen(deltaTime)
 
-        AppContext.camera.up.set(Vector3.Y)
-        AppContext.camera.update()
-
-        // render
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
-        sceneManager!!.update(deltaTime)
-        sceneManager!!.render()
-
-
-        AppContext.triggers.check_and_start_animations(AppContext.camera.position)
-        AppContext.triggers.check_and_start_audios(AppContext.camera.position)
-
-        if (sensorProvider.isXRotating) {
-            if (sensorProvider.rotationX > 0f) {
-                AppContext.cameraController.rotate_camera(RotationDirections.LEFT.value, sensorProvider.rotationX)
-            }
-            else if (sensorProvider.rotationX < 0f) {
-                AppContext.cameraController.rotate_camera(RotationDirections.RIGHT.value, abs(sensorProvider.rotationX))
-            }
-            button_creator!!.print_to_label(sensorProvider.rotationX.toString())
-        }
-
-        if (sensorProvider.isYRotating) {
-            if (sensorProvider.rotationY > 0f) {
-                AppContext.cameraController.rotate_camera(RotationDirections.DOWN.value, sensorProvider.rotationY)
-            }
-            else if (sensorProvider.rotationY < 0f) {
-                AppContext.cameraController.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
-            }
-        }
-
-        if (!sensorProvider.isMoving) {
-            real_move_direction = MoveDirections.STOP.value
-        }
-        if (sensorProvider.isMoving && !isMoving_old && !sensorProvider.isXRotating && !sensorProvider.isYRotating) {
-            if (sensorProvider.accelZBuffer > 0f ) {
-                real_move_direction = MoveDirections.FORWARD.value
-            }
-            else if (sensorProvider.accelZBuffer < 0f ) {
-                real_move_direction = MoveDirections.BACKWARD.value
-            }
-        }
-
-        if (sensorProvider.isMoving) {
-            if (real_move_direction == MoveDirections.FORWARD.value) {
-                AppContext.cameraController.move_camera(MoveDirections.FORWARD.value, sensorProvider.MovingZ)
-            }
-            else if (real_move_direction == MoveDirections.BACKWARD.value) {
-                AppContext.cameraController.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
-            }
-        }
+        check_and_start_animations_and_audios()
+        move_and_rotate_camera()
 
         AppContext.stage.act()
         AppContext.stage.draw()
@@ -241,7 +185,93 @@ class Main(private val sensorProvider: SensorProvider, val worldName: String) : 
         AppContext.cameraController = CameraController(speed_move_camera_by_button, speed_rotation_camera_by_button)
     }
 
+    private fun show_ui() {
+        lastInputTime = time
+        if (!showUI) {
+            button_creator!!.show_buttons()
+            showUI = true
+        }
+    }
 
+    private fun hide_ui() {
+        button_creator!!.hide_buttons()
+        showUI = false
+    }
+
+    private fun update_camera() {
+        AppContext.camera.up.set(Vector3.Y)
+        AppContext.camera.update()
+    }
+
+    private fun render_screen(deltaTime: Float) {
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT or GL20.GL_DEPTH_BUFFER_BIT)
+        sceneManager!!.update(deltaTime)
+        sceneManager!!.render()
+    }
+
+    private fun check_and_start_animations_and_audios() {
+        AppContext.triggers.check_and_start_animations(AppContext.camera.position)
+        AppContext.triggers.check_and_start_audios(AppContext.camera.position)
+    }
+
+    private fun move_and_rotate_camera() {
+        rotate_camera()
+        move_camera()
+    }
+    private fun rotate_camera() {
+        rotate_camera_X()
+        rotate_camera_Y()
+    }
+
+    private fun move_camera() {
+        move_camera_Z()
+    }
+
+    private fun rotate_camera_X() {
+        if (sensorProvider.isXRotating) {
+            if (sensorProvider.rotationX > 0f) {
+                AppContext.cameraController.rotate_camera(RotationDirections.LEFT.value, sensorProvider.rotationX)
+            }
+            else if (sensorProvider.rotationX < 0f) {
+                AppContext.cameraController.rotate_camera(RotationDirections.RIGHT.value, abs(sensorProvider.rotationX))
+            }
+            button_creator!!.print_to_label(sensorProvider.rotationX.toString())
+        }
+    }
+
+    private fun rotate_camera_Y() {
+        if (sensorProvider.isYRotating) {
+            if (sensorProvider.rotationY > 0f) {
+                AppContext.cameraController.rotate_camera(RotationDirections.DOWN.value, sensorProvider.rotationY)
+            }
+            else if (sensorProvider.rotationY < 0f) {
+                AppContext.cameraController.rotate_camera(RotationDirections.UP.value, abs(sensorProvider.rotationY))
+            }
+        }
+    }
+
+    private fun move_camera_Z() {
+        if (!sensorProvider.isMoving) {
+            real_move_direction = MoveDirections.STOP.value
+        }
+        if (sensorProvider.isMoving && !isMoving_old && !sensorProvider.isXRotating && !sensorProvider.isYRotating) {
+            if (sensorProvider.accelZBuffer > 0f ) {
+                real_move_direction = MoveDirections.FORWARD.value
+            }
+            else if (sensorProvider.accelZBuffer < 0f ) {
+                real_move_direction = MoveDirections.BACKWARD.value
+            }
+        }
+
+        if (sensorProvider.isMoving) {
+            if (real_move_direction == MoveDirections.FORWARD.value) {
+                AppContext.cameraController.move_camera(MoveDirections.FORWARD.value, sensorProvider.MovingZ)
+            }
+            else if (real_move_direction == MoveDirections.BACKWARD.value) {
+                AppContext.cameraController.move_camera(MoveDirections.BACKWARD.value, abs(sensorProvider.MovingZ)/6f)
+            }
+        }
+    }
 
     override fun dispose() {
         sceneManager!!.dispose()
