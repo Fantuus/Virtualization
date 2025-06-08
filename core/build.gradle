@@ -10,11 +10,8 @@ dependencies {
   api "com.github.bonenaut7.gdx-psx:gdx-psx-core:$gdxPsxVersion"
   api "com.github.mgsx-dev.gdx-gltf:gltf:$gdxGltfVersion"
   api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-  implementation "com.google.code.gson:gson:2.10.1"
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
-//    implementation 'com.badlogicgames.gdx:gdx:1.12.0'
-//    implementation 'com.badlogicgames.gdx:gdx-freetype:1.12.0' // Для шрифтов
   }
 }
