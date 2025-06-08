@@ -2,6 +2,7 @@ package com.mygame
 
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.audio.Music
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Cubemap
 import com.badlogic.gdx.graphics.GL20
@@ -586,6 +587,7 @@ class ButtonCreator(val sensitivity: Sensitivity?): ApplicationAdapter(),
             override fun touchDown(event: InputEvent?, x: Float, y: Float, pointer: Int, button: Int): Boolean {
                 val game = Gdx.app.getApplicationListener() as? MyGame
                 game?.setScreen(MainMenuScreen(game))
+                AppContext.triggers.stopAllAudio()
                 return true
             }
         })
@@ -654,7 +656,7 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
     private val audiosLaunched = mutableMapOf<String, Boolean>()
 
     // Словарь для хранения звуков
-    private val soundMap = mutableMapOf<String, Sound>()
+    private val soundMap = mutableMapOf<String, Music>()
 
     fun find_animations() {
         val animations = AppContext.scene.modelInstance.animations
@@ -676,7 +678,9 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
             if (file.extension().equals("mp3", ignoreCase = true)) {
                 audioNames.add(file.name())
                 audiosLaunched[file.name()] = false
-                soundMap[file.name()] = Gdx.audio.newSound(Gdx.files.internal("$path_to_sounds/${file.name()}"))
+                val music = Gdx.audio.newMusic(Gdx.files.internal("$path_to_sounds/${file.name()}"))
+                music.isLooping = false
+                soundMap[file.name()] = music
             }
         }
         audioNames.sort()
@@ -752,8 +756,17 @@ class Triggers(val path_to_sounds: String) : AnimationController.AnimationListen
     }
 
     private fun playAudio(key: String) {
-        val sound = soundMap[key] ?: return
-        sound.play(1f) // Громкость 100%
+        val music = soundMap[key] ?: return
+        stopAllAudio()
+        music.play()
+
+        music.setOnCompletionListener {
+            Gdx.app.log("Audio", "$key finished playing")
+        }
+    }
+
+    fun stopAllAudio() {
+        soundMap.values.forEach { it.stop() }
     }
 
 
