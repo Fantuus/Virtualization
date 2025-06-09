@@ -53,7 +53,6 @@ class VirtualWorld(private val sensorProvider: SensorProvider, val worldName: St
     private var button_creator: ButtonCreator? = null
 
     private var real_move_direction = MoveDirections.STOP.value
-    private var isMoving_old = false
 
     private var lastInputTime = 0f
     private var timeToHideButtons = 5f
@@ -229,7 +228,7 @@ class VirtualWorld(private val sensorProvider: SensorProvider, val worldName: St
         if (!sensorProvider.isMoving) {
             real_move_direction = MoveDirections.STOP.value
         }
-        if (sensorProvider.isMoving && !isMoving_old && !sensorProvider.isXRotating && !sensorProvider.isYRotating) {
+        if (sensorProvider.isMoving && !sensorProvider.isXRotating && !sensorProvider.isYRotating) {
             if (sensorProvider.accelZBuffer > 0f ) {
                 real_move_direction = MoveDirections.FORWARD.value
             }
